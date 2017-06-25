@@ -303,6 +303,7 @@ def drawABtestTree(root, schemafname, datafname):
     (graph,) = pydot.graph_from_dot_file('tmpf')
     graph.write_png(Constant.ABTESTPNG)
 
+
 def drawtest():
 
     (graph,) = pydot.graph_from_dot_file('tmpf')

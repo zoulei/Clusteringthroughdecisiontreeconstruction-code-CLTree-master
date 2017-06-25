@@ -452,6 +452,35 @@ class CLNode(object):
 
         return newrull
 
+    def fetchcombinedrull(self):
+        rulllist = self.fetchfullsplitrull()
+
+        # for numeric data attrtype : {"lower":,"upper"}
+        # for catogorical data : {"is":,"not":[]}
+        combinedrulldict = {}
+
+        for splittype,splitattr,splitvalue,direction in rulllist:
+            if splitattr not in combinedrulldict:
+                combinedrulldict[splitattr] = {}
+            if splittype == float:
+                if direction == "l":
+                    oldvalue = combinedrulldict[splitattr].get("upper")
+                    if oldvalue == None or splitvalue < oldvalue:
+                        combinedrulldict[splitattr]["upper"] = splitvalue
+                else:
+                    oldvalue = combinedrulldict[splitattr].get("lower")
+                    if oldvalue == None or splitvalue > oldvalue:
+                        combinedrulldict[splitattr]["lower"] = splitvalue
+            else:
+                if direction == "l":
+                    combinedrulldict[splitattr]["is"] = [splitvalue,]
+                else:
+                    if  "not" not in combinedrulldict[splitattr]:
+                        combinedrulldict[splitattr]["not"] = []
+                    combinedrulldict[splitattr]["not"].append(splitvalue)
+
+        return combinedrulldict
+
     def setPruneState(self, prune):
         self.can_prune = prune
 
