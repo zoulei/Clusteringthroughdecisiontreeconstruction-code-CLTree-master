@@ -5,7 +5,9 @@ from plot import PlotIt
 
 import treedrawer
 import Constant
-              
+
+import ABTest
+
 class CLTree:
     def __init__(self, dataset, min_split=1, min_infogain = -100):
         if dataset is None:
@@ -68,6 +70,7 @@ def clmain():
     print 'Clustering      '
     print '----------------'
     r = ArffReader(1000)
+
     #data = r.read('test/gen.arff')
     #data = r.read('test/gendis1.arff')
     #data = r.read('test/D05.arff')
@@ -126,7 +129,9 @@ def clmain():
     # treedrawer.drawtest()
     treedrawer.draw1(cltree.root)
     treedrawer.drawABtestTree(cltree.root, Constant.SCHEMAFNAME, Constant.RAWDATAFNAME)
-    
+    abtester = ABTest.ABTest(cltree.root)
+    abtester.dotest()
+
 if __name__ == '__main__':
     # for min_y in xrange(11):
     #     print "=="*20

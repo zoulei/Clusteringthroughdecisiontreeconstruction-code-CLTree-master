@@ -139,7 +139,8 @@ class BuildTree(object):
         #     return None
         return bestCut
             
-    def _calcCut1(self, dataset, attribute):   
+    def _calcCut1(self, dataset, attribute):
+        print "cut by attr:",attribute
         return self.cutCreator.cut(dataset, attribute) 
 
     def _calcCut2(self, di_cut1):   
@@ -282,15 +283,25 @@ class InfoGainCutFactory:
         if dataset.attr_types_dict[attribute] == float:
             instances = dataset.getInstances(attribute)
             for i, value in enumerate(instances):
+                if len(instances) > i + 1 and instances[i + 1] == value:
+                    continue
                 if self._hasRectangle(dataset, attribute, value):
                     lhs_set, rhs_set = self.datasetSplitter.split(dataset, attribute, value, i+1)
 
                     # why update virtual points number before calculate info gain
                     ig, lset, rset = self._info_gain(dataset, lhs_set, rhs_set)
                     #print "cut detail:",attribute,value,ig,lhs_set.nr_total_instances,rhs_set.nr_total_instances
+                    if dataset.length() == 709 and attribute == "#images":
+                        print "-----testcut:", ig, value
                     if ig > max_info_gain:
                         max_info_gain = ig
                         di_cut = Cut(attribute, value, dataset.getId(i), lset, rset)
+                        print "######curig:",max_info_gain, lset.length(),rset.length()
+                        if lset.length() ==52:
+                            print "lset:"
+                            print lset
+                            print "rset:"
+                            print rset
         else:
             # categorical
             pass
@@ -313,6 +324,7 @@ class InfoGainCutFactory:
                         max_info_gain = ig
                         #di_cut = Cut(attribute, value, dataset.getId(i), lset, rset)
                         di_cut = Cut(attribute, value, 0, lset, rset)
+                        print "######curig:",max_info_gain, lset.length(),rset.length()
         print "mxinfogain: ",max_info_gain
         # if di_cut is None:
         #     return None
@@ -479,6 +491,16 @@ class CLNode(object):
                         combinedrulldict[splitattr]["not"] = []
                     combinedrulldict[splitattr]["not"].append(splitvalue)
 
+        return combinedrulldict
+
+    def fetchrawcombinedrull(self):
+        combinedrulldict = self.fetchcombinedrull()
+        revdict = trandt.readreversedict(Constant.TRANFILE)
+        for attr, bounddict in combinedrulldict.items():
+            if self.getroot().dataset.getAttrType(attr) == float:
+                continue
+            for key, valuelist in bounddict.items():
+                combinedrulldict[attr][key] = [revdict[attr][v] for v in valuelist]
         return combinedrulldict
 
     def setPruneState(self, prune):
