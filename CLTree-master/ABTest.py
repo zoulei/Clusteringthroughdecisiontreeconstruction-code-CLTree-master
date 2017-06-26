@@ -112,14 +112,14 @@ class ABTest:
                 else:
                     generatearray = self.filterbycategoricalfeature(generatearray,idx,bounddict)
 
-                print "substep:",curattr,len(generatearray)
+                # print "substep:",curattr,len(generatearray)
 
             # print "test attr:",attr,rawlength,generatelength
             rawdensity = node.dataset.length() * 1.0 / rawlength
             generatedensity = len(generatearray) * 1.0 / generatelength
 
-            print "length:",rawlength,generatelength
-            print rawdensity,generatedensity,len(generatearray),node.dataset.length()
+            # print "length:",rawlength,generatelength
+            # print rawdensity,generatedensity,len(generatearray),node.dataset.length()
 
             generatedensity /= rawdensity
 

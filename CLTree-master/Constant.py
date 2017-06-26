@@ -10,7 +10,7 @@ MINY = 1
 MINRD = 70
 MIN_NR_INSTANCES = 2
 
-OUTPUTPNG = CLTREEHOME + "loan.png"
+OUTPUTPNG = CLTREEHOME + "SRT.png"
 ABTESTPNG = CLTREEHOME + "ABTEST_" + "loan.png"
 
 SCHEMAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/schema.csv"
