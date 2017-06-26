@@ -2,6 +2,7 @@ import copy
 import numpy as np
 import Queue
 import pprint
+import Constant
 
 class ABTest:
     def __init__(self,root):
@@ -142,6 +143,104 @@ class ABTest:
                 pp.pprint(curnode.fetchrawcombinedrull() )
                 print "abtestresult: "
                 pp.pprint(self.dotestfornode(curnode) )
+
+            else:
+                for chnode in curnode.getChildNodes():
+                    nodequeue.put(chnode)
+        print "#==============================================="
+
+    def calABtestdata(self,schemafname, datafname, rulllist):
+        file = open(schemafname)
+        headerline = file.readline()
+        headerline=headerline.lower()
+        typeline = file.readline()
+        typeinfo = typeline.strip().split("\t")
+        classline = file.readline()
+        header = headerline.strip().split("\t")
+        headerdict = dict(zip(header,range(len(header))))
+        classdata = classline[:-1].split("\t")
+        classidx = classdata.index("class")
+        file.close()
+
+        file = open(datafname)
+        clscounter = {}
+        total = 0
+        for line in file:
+            data = line.strip().split("\t")
+            total += 1
+            # if len(rulllist) == 5:
+            #     print line
+            for attr, bounddict in rulllist.items():
+            # for splittype,splitattr,splitvalue,direction in rulllist:
+                attridx = header.index(attr)
+                attrtype = typeinfo[attridx]
+                if attrtype == "c":
+                    if "lower" not in bounddict:
+                        if float(data[attridx]) > bounddict["upper"]:
+                            break
+                    elif "upper" not in bounddict:
+                        if float(data[attridx]) <= bounddict["lower"]:
+                            break
+                    elif bounddict["upper"] > bounddict["lower"]:
+                        if not bounddict["lower"] < float(data[attridx]) < bounddict["upper"]:
+                            break
+                    else:
+                        if bounddict["lower"] < float(data[attridx]) < bounddict["upper"]:
+                            break
+                else:
+                    if "is" in bounddict:
+                        if data[attridx] not in bounddict["is"]:
+                            break
+                    else:
+                        if data[attridx] in bounddict["not"]:
+                            break
+
+            else:
+                cls = data[classidx]
+                if cls not in clscounter:
+                    clscounter[cls] = 0
+                clscounter[cls] += 1
+        clscounter["total"] = total
+
+        return clscounter
+
+    def dobilabeltestfornode(self, node):
+        rulldict = node.fetchrawcombinedrull()
+        generaterulllist = self.generaterulls(rulldict)
+
+        attrkeys = rulldict.keys()
+        attrkeys.sort()
+
+        ABtestresult = {}
+
+        targetcls = node.dataset.class_names[0]
+
+        rawdatainfo = self.calABtestdata(Constant.SCHEMAFNAME,Constant.RAWDATAFNAME,rulldict)
+        rawtargetclsrate = rawdatainfo[targetcls] * 1.0 / (sum(rawdatainfo.values()) - rawdatainfo["total"])
+
+        for attr, generaterull in zip(attrkeys,generaterulllist):
+            gendatainfo = self.calABtestdata(Constant.SCHEMAFNAME,Constant.RAWDATAFNAME,generaterull)
+            gentargetclsrate = gendatainfo[targetcls] * 1.0 / (sum(gendatainfo.values()) - gendatainfo["total"])
+
+            ABtestresult[attr] = gentargetclsrate - rawtargetclsrate
+
+        return ABtestresult
+
+    def dobilabeltest(self):
+        nodequeue = Queue.Queue()
+        nodequeue.put(self.m_root)
+
+        pp = pprint.PrettyPrinter(indent=4)
+
+        while not nodequeue.empty():
+            curnode = nodequeue.get()
+
+            if curnode.isPrune():
+                print "==============================================="
+                print "rawrule: "
+                pp.pprint(curnode.fetchrawcombinedrull() )
+                print "abtestresult: "
+                pp.pprint(self.dobilabeltestfornode(curnode) )
 
             else:
                 for chnode in curnode.getChildNodes():
