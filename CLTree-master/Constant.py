@@ -1,8 +1,8 @@
 
 CLTREEHOME = ""
 
-TRANFILE = CLTREEHOME + "test/srttrandict"
-DATAFILE = CLTREEHOME + "test/srt.arff"
+TRANFILE = CLTREEHOME + "test/loandict"
+DATAFILE = CLTREEHOME + "test/loan.arff"
 # DATAFILE = CLTREEHOME + "test/gen.arff"
 
 NODERATIOTHRE = 0.05
@@ -10,7 +10,7 @@ MINY = 1
 MINRD = 70
 MIN_NR_INSTANCES = 2
 
-OUTPUTPNG = CLTREEHOME + "SRT.png"
+OUTPUTPNG = CLTREEHOME + "loan.png"
 ABTESTPNG = CLTREEHOME + "ABTEST_" + "loan.png"
 
 SCHEMAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/schema.csv"

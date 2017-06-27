@@ -128,10 +128,10 @@ def clmain():
 
     # treedrawer.drawtest()
     treedrawer.draw1(cltree.root)
-    treedrawer.drawABtestTree(cltree.root, Constant.SCHEMAFNAME, Constant.RAWDATAFNAME)
-    abtester = ABTest.ABTest(cltree.root)
-    abtester.dotest()
-    abtester.dobilabeltest()
+    # treedrawer.drawABtestTree(cltree.root, Constant.SCHEMAFNAME, Constant.RAWDATAFNAME)
+    # abtester = ABTest.ABTest(cltree.root)
+    # abtester.dotest()
+    # abtester.dobilabeltest()
 
 if __name__ == '__main__':
     # for min_y in xrange(11):
