@@ -247,7 +247,9 @@ def drawABtestTree(root, schemafname, datafname):
 
         datalen = curnode.dataset.length()
         rd =  curnode.getRelativeDensity()
-        nodestr = "WT:" + str(int(datalen*1.0/root.dataset.length()*100)) + "%\\nRD:" + str(rd) + "\\n" + targetcls + "%:" + str(round(targetclsrate * 100,1)) + "%\\nEP:" + str(round(includedata*100,1) )+"%"
+        nodestr = "WT:" + str(int(datalen*1.0/root.dataset.length()*100)) + "%\\nRD:" + str(rd) + "\\n" + targetcls + "%:" \
+                  + str(round(targetclsrate * 100,1)) + "%\\nEP:" + str(round(includedata*100,1) )+"%\\n" \
+                    + "DT:" + str(curnode.getdensity())
         if curnode.attribute:
             nodestr = curnode.attribute + "\\n" + nodestr
         addnode = pydot.Node(nodestr)

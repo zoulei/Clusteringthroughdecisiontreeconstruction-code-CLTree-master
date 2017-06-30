@@ -12,6 +12,24 @@ myplt = PlotIt()
 def _relative_density(dataset):
     return float(dataset.length())/dataset.nr_virtual_points
 
+def calculatenumericallength(bounddict, minvalue, maxvalue):
+    if "lower" not in bounddict:
+        length = bounddict["upper"] - minvalue
+    elif "upper" not in bounddict:
+        length = maxvalue - bounddict["lower"]
+    else:
+        length = bounddict["upper"] - bounddict["lower"]
+    if length < 0:
+        length += maxvalue - minvalue
+    return length
+
+def calculatecategoricallength(bounddict, fullrange):
+    if "is" in bounddict:
+        length = len(bounddict["is"])
+    else:
+        length = len(fullrange) - len(bounddict["not"])
+
+    return length
 
 class BuildTree(object):
     def __init__(self, min_split, min_infogame = -100):
@@ -558,6 +576,30 @@ class CLNode(object):
             p = p.parent
         self.root = p
         return p
+
+    def getdensity(self):
+        rulldict = self.fetchcombinedrull()
+        root = self.getroot()
+        density = 1
+        for attr in root.dataset.attr_names:
+            if attr in rulldict:
+                if root.dataset.getAttrType(attr) == float:
+                    min = root.dataset.get_min(attr)
+                    max = root.dataset.get_max(attr)
+                    density *= calculatenumericallength(rulldict[attr],min,max)
+                else:
+                    datarange = root.dataset.get_range(attr)
+                    density *= calculatecategoricallength(rulldict[attr], datarange)
+            else:
+                if root.dataset.getAttrType(attr) == float:
+                    min = root.dataset.get_min(attr)
+                    max = root.dataset.get_max(attr)
+                    density *= max - min
+                else:
+                    datarange = root.dataset.get_range(attr)
+                    density *= len(datarange)
+        density = self.dataset.length() / density
+        return density
 
     def expressCat(self,attribute,reversetran):
         rootrange = self.root.dataset.get_range(attribute)

@@ -128,7 +128,7 @@ def clmain():
 
     # treedrawer.drawtest()
     treedrawer.draw1(cltree.root)
-    # treedrawer.drawABtestTree(cltree.root, Constant.SCHEMAFNAME, Constant.RAWDATAFNAME)
+    treedrawer.drawABtestTree(cltree.root, Constant.SCHEMAFNAME, Constant.RAWDATAFNAME)
     # abtester = ABTest.ABTest(cltree.root)
     # abtester.dotest()
     # abtester.dobilabeltest()
