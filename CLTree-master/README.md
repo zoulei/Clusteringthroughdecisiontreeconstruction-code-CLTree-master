@@ -1,5 +1,7 @@
 Clustering through Decision Tree Construction:
 
+This code has been tested under ubuntu 14.
+
 Software dependency:
 Graphviz
 installation command under ubuntu: #apt-get install graphviz
