@@ -5,6 +5,7 @@ from plot import PlotIt
 
 import treedrawer
 import Constant
+import trandt
 
 import ABTest
 
@@ -66,10 +67,14 @@ class CLTree:
 
     
 def clmain():
+    print "transfer data format"
+    trandt.trandata(Constant.SCHEMAFNAME,Constant.DATAFNAME,Constant.DATAFILE,Constant.TRANFILE)
+
+
     print '----------------'
     print 'Clustering      '
     print '----------------'
-    r = ArffReader(1000)
+    r = ArffReader()
 
     #data = r.read('test/gen.arff')
     #data = r.read('test/gendis1.arff')
@@ -127,8 +132,8 @@ def clmain():
     #myplt.draw()
 
     # treedrawer.drawtest()
-    treedrawer.draw1(cltree.root)
-    treedrawer.drawABtestTree(cltree.root, Constant.SCHEMAFNAME, Constant.RAWDATAFNAME)
+    # treedrawer.draw1(cltree.root)
+    treedrawer.drawABtestTree(cltree.root)
     # abtester = ABTest.ABTest(cltree.root)
     # abtester.dotest()
     # abtester.dobilabeltest()

@@ -309,17 +309,17 @@ class InfoGainCutFactory:
                     # why update virtual points number before calculate info gain
                     ig, lset, rset = self._info_gain(dataset, lhs_set, rhs_set)
                     #print "cut detail:",attribute,value,ig,lhs_set.nr_total_instances,rhs_set.nr_total_instances
-                    if dataset.length() == 709 and attribute == "#images":
-                        print "-----testcut:", ig, value
+                    # if dataset.length() == 709 and attribute == "#images":
+                    #     print "-----testcut:", ig, value
                     if ig > max_info_gain:
                         max_info_gain = ig
                         di_cut = Cut(attribute, value, dataset.getId(i), lset, rset)
-                        print "######curig:",max_info_gain, lset.length(),rset.length()
-                        if lset.length() ==52:
-                            print "lset:"
-                            print lset
-                            print "rset:"
-                            print rset
+                        # print "######curig:",max_info_gain, lset.length(),rset.length()
+                        # if lset.length() ==52:
+                        #     print "lset:"
+                        #     print lset
+                        #     print "rset:"
+                        #     print rset
         else:
             # categorical
             pass
@@ -342,7 +342,7 @@ class InfoGainCutFactory:
                         max_info_gain = ig
                         #di_cut = Cut(attribute, value, dataset.getId(i), lset, rset)
                         di_cut = Cut(attribute, value, 0, lset, rset)
-                        print "######curig:",max_info_gain, lset.length(),rset.length()
+                        # print "######curig:",max_info_gain, lset.length(),rset.length()
         print "mxinfogain: ",max_info_gain
         # if di_cut is None:
         #     return None

@@ -196,7 +196,7 @@ def calABtestdata(schemafname, datafname, rulllist):
     return clscounter
 
 
-def drawABtestTree(root, schemafname, datafname):
+def drawABtestTree(root):
     parmap = {}
 
     trandict = trandt.readreversedict(Constant.TRANFILE)
@@ -226,30 +226,36 @@ def drawABtestTree(root, schemafname, datafname):
 
     nodequeue = Queue.Queue()
     nodequeue.put(root)
+    avgdensity = root.getdensity()
+
+    leafinfo = {}
+
     while not nodequeue.empty():
         curnode = nodequeue.get()
         idx += 1
 
         rulllist = curnode.fetchfullrawsplitrull()
         # print rulllist
-        rawdatainfo = calABtestdata(schemafname,datafname,rulllist)
-        print "==========="
-        pp.pprint(rawdatainfo)
-        print "-------------"
-        pp.pprint(rulllist)
+        # rawdatainfo = calABtestdata(schemafname,datafname,rulllist)
+        # print "==========="
+        # pp.pprint(rawdatainfo)
+        # print "-------------"
+        # pp.pprint(rulllist)
         # if "slow" in rawdatainfo:
         #     print "aaa"
         # print "bbb:",rawdatainfo.keys(),targetcls,
-        targetclsrate = rawdatainfo[targetcls] * 1.0 / (sum(rawdatainfo.values()) - rawdatainfo["total"])
-        includedata = (sum(rawdatainfo.values()) - rawdatainfo["total"]) * 1.0 / rawdatainfo["total"]
+        # targetclsrate = rawdatainfo[targetcls] * 1.0 / (sum(rawdatainfo.values()) - rawdatainfo["total"])
+        # includedata = (sum(rawdatainfo.values()) - rawdatainfo["total"]) * 1.0 / rawdatainfo["total"]
 
         print "node: ",curnode.getNrInstancesInNode(),curnode.attribute,curnode.value,curnode.direction,curnode.depth
 
         datalen = curnode.dataset.length()
         rd =  curnode.getRelativeDensity()
-        nodestr = "WT:" + str(int(datalen*1.0/root.dataset.length()*100)) + "%\\nRD:" + str(rd) + "\\n" + targetcls + "%:" \
-                  + str(round(targetclsrate * 100,1)) + "%\\nEP:" + str(round(includedata*100,1) )+"%\\n" \
-                    + "DT:" + str(curnode.getdensity())
+        # nodestr = "WT:" + str(int(datalen*1.0/root.dataset.length()*100)) + "%\\nRD:" + str(rd) + "\\n" + targetcls + "%:" \
+        #           + str(round(targetclsrate * 100,1)) + "%\\nEP:" + str(round(includedata*100,1) )+"%\\n" \
+        #             + "DT:" + str(curnode.getdensity())
+        nodestr = "WT:" + str(int(datalen*1.0/root.dataset.length()*100)) +"%\\n" \
+                    + "DT:" + str("{:.2e}".format(curnode.getdensity()))
         if curnode.attribute:
             nodestr = curnode.attribute + "\\n" + nodestr
         addnode = pydot.Node(nodestr)
@@ -262,6 +268,13 @@ def drawABtestTree(root, schemafname, datafname):
 
         writeline = "\"" + str(idx) + "\"" + "[ shape=" + shape + " label=\"" + nodestr + "\"]" + "\n"
         writestr += writeline
+        if not curnode.attribute:
+            # leaf
+            densityrate = round(curnode.getdensity() / avgdensity,1)
+            nodestr += "\\n" +  str( densityrate) + " X AVG"
+            writeline = "\"" + str(idx+1000) + "\"" + "[ shape=" + shape + " label=\"" + nodestr + "\"]" + "\n"
+            writestr += writeline
+            leafinfo[idx+1000] = densityrate
 
         if curnode in parmap:
             parnode = curnode.parent
@@ -290,6 +303,17 @@ def drawABtestTree(root, schemafname, datafname):
             for chnode in curnode.getChildNodes():
                 parmap[chnode] = idx
                 nodequeue.put(chnode)
+
+    leafinfolist = leafinfo.items()
+    leafinfolist.sort(key=lambda v:v[1])
+    for i in xrange(len(leafinfolist) - 1):
+        if leafinfolist[i + 1][1] >= 1 and leafinfolist[i][1] < 1:
+            splitstr = "AVG = " + str("{:.2e}".format(avgdensity))
+        else:
+            splitstr = ""
+        writeline = "\""+ str(leafinfolist[i + 1][0]) + "\" -> \"" + str(leafinfolist[i][0]) + "\" [ label=\"" + splitstr + "\" ]" + "\n"
+        writestr += writeline
+
     ofile = open("tmpf","w")
     ofile.write("digraph G {\n")
     # try:
@@ -303,7 +327,7 @@ def drawABtestTree(root, schemafname, datafname):
     ofile.close()
 
     (graph,) = pydot.graph_from_dot_file('tmpf')
-    graph.write_png(Constant.ABTESTPNG)
+    graph.write_png(Constant.OUTPUTPNG)
 
 
 def drawtest():
