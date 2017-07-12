@@ -1,8 +1,12 @@
 from build import CLNode
 import Queue
-import pydot
+# import pydot
 import trandt
 import Constant
+
+if Constant.DRAWIMAGE:
+    import pydot
+
 # class drawer():
 def draw( root):
     graph = pydot.Dot(graph_type='digraph')
@@ -113,7 +117,7 @@ def draw1( root):
             for chnode in curnode.getChildNodes():
                 parmap[chnode] = idx
                 nodequeue.put(chnode)
-    ofile = open("tmpf","w")
+    ofile = open(Constant.CACHEDIR+"/tmpf","w")
     ofile.write("digraph G {\n")
     # try:
     # ofile.write(writestr)
@@ -125,7 +129,8 @@ def draw1( root):
     ofile.write("}")
     ofile.close()
 
-    (graph,) = pydot.graph_from_dot_file('tmpf')
+
+    (graph,) = pydot.graph_from_dot_file(Constant.CACHEDIR + '/tmpf')
     graph.write_png(Constant.OUTPUTPNG)
 
     # graph.write_png("example.png")
@@ -229,6 +234,7 @@ def drawABtestTree(root):
     avgdensity = root.getdensity()
 
     leafinfo = {}
+    leafnode = []
 
     while not nodequeue.empty():
         curnode = nodequeue.get()
@@ -258,7 +264,7 @@ def drawABtestTree(root):
                     + "DT:" + str("{:.2e}".format(curnode.getdensity()))
         if curnode.attribute:
             nodestr = curnode.attribute + "\\n" + nodestr
-        addnode = pydot.Node(nodestr)
+        # addnode = pydot.Node(nodestr)
         # graph.add_node(addnode)
 
         if not curnode.isPrune():
@@ -275,6 +281,7 @@ def drawABtestTree(root):
             writeline = "\"" + str(idx+1000) + "\"" + "[ shape=" + shape + " label=\"" + nodestr + "\"]" + "\n"
             writestr += writeline
             leafinfo[idx+1000] = densityrate
+            leafnode.append([densityrate,curnode])
 
         if curnode in parmap:
             parnode = curnode.parent
@@ -290,7 +297,7 @@ def drawABtestTree(root):
                 else:
                     splitstr = "NOT "+ realvalue
                 # splitstr.encode("utf-8")
-            addedge = pydot.Edge(parmap[curnode],addnode,label=splitstr)
+            # addedge = pydot.Edge(parmap[curnode],addnode,label=splitstr)
             # str(parmap[curnode]).encode("utf-8")
             # parmap[curnode].encode("utf-8")
             writeline ="\""+ str(parmap[curnode]) + "\" -> \"" + str(idx) + "\" [ label=\"" + splitstr + "\" ]" + "\n"
@@ -319,19 +326,32 @@ def drawABtestTree(root):
     # try:
     # ofile.write(writestr)
     # except:
-    print writestr[:51]
-
-    print ofile
     ofile.write(writestr.decode("utf-8").encode("utf-8"))
     ofile.write("}")
     ofile.close()
 
-    (graph,) = pydot.graph_from_dot_file('tmpf')
-    graph.write_png(Constant.OUTPUTPNG)
+    if Constant.DRAWIMAGE:
+        (graph,) = pydot.graph_from_dot_file('tmpf')
+        graph.write_png(Constant.OUTPUTPNG)
 
+    leafnode.sort(key=lambda v:v[0],reverse=True)
+    wline = ""
+    wline += "------------------------------------------------------\n"*3
+    wline += "-------------------------result-----------------------\n"
+    wline += "------------------------------------------------------\n"*3
+    wline += "\nAVG density is : "+str(avgdensity)+"\n"
+    for dt, node in leafnode:
+        wline += "-------------------------\n"
+        wline += pp.pformat(node.fetchrawcombinedrull())+"\n"
+        wline += "Weight : "+str(int(node.dataset.length()*1.0/root.dataset.length()*100))+"%\n"
+        wline += "Density : "+str("{:.2e}".format(node.getdensity()))+"\n"
+        wline += "Density is " + str( round(node.getdensity() / avgdensity,1)) + " times of AVG\n"
+    print wline
+    file = open(Constant.OUTPUTTXT,"w")
+    file.write(wline)
+    file.close()
 
 def drawtest():
-
     (graph,) = pydot.graph_from_dot_file('tmpf')
     graph.write_png('somefile.png')
 

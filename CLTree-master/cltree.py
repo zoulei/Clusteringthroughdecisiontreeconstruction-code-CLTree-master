@@ -1,7 +1,6 @@
 from arff import Data, ArffReader
-from build import BuildTree, _relative_density, myplt
+from build import BuildTree, _relative_density
 from prune import PruneTree
-from plot import PlotIt
 
 import treedrawer
 import Constant

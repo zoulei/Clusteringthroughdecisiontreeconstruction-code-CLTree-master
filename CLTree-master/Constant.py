@@ -1,10 +1,13 @@
 
 # ========== please change these parameters according to your own environment and data=======
-CACHEDIR = "test/"
+CACHEDIR = "cache/"
 OUTPUTPNG = CACHEDIR + "/cltree.png"
-SCHEMAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/schema.csv"
-DATAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/example.csv.tab"
-
+OUTPUTTXT = CACHEDIR + "/cltree.txt"
+# SCHEMAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/schema.csv"
+# DATAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/example.csv.tab"
+SCHEMAFNAME = "example data/schema.csv"
+DATAFNAME = "example data/example.csv.tab"
+DRAWIMAGE = False
 
 # ========== cltree parameters ======================
 NODERATIOTHRE = 0.05

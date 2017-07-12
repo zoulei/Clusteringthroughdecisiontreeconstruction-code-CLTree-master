@@ -1,5 +1,4 @@
 from arff import Data
-from plot import PlotIt
 
 from math import sqrt as sqrt
 
@@ -7,7 +6,6 @@ import numpy as np
 import copy
 import trandt
 import Constant
-myplt = PlotIt()
 
 def _relative_density(dataset):
     return float(dataset.length())/dataset.nr_virtual_points
@@ -598,7 +596,7 @@ class CLNode(object):
                 else:
                     datarange = root.dataset.get_range(attr)
                     density *= len(datarange)
-        density = self.dataset.length() / density
+        density = self.dataset.length() * 1.0 / density
         return density
 
     def expressCat(self,attribute,reversetran):
