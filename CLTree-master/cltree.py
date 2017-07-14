@@ -73,7 +73,7 @@ def clmain():
     print '----------------'
     print 'Clustering      '
     print '----------------'
-    r = ArffReader()
+    r = ArffReader(1000)
 
     #data = r.read('test/gen.arff')
     #data = r.read('test/gendis1.arff')
@@ -93,7 +93,7 @@ def clmain():
     clusterplt.setData(data, dim0, dim1)
     """
     
-    cltree = CLTree(data, data.length() * Constant.NODERATIOTHRE,0.1)
+    cltree = CLTree(data, int(data.length() * Constant.NODERATIOTHRE),Constant.MININFORMATIONGAIN)
     cltree.buildTree()
                     
     # The minimum number of instances a cluster must contain. It is 
