@@ -271,9 +271,10 @@ class DatasetSplitter:
     def _updateVirtualPoints(self, data_set):            
         nr_points_in_set = data_set.length()
         data_set.nr_virtual_points = self._calcNumberOfPointsToAdd(nr_points_in_set, data_set.nr_virtual_points)
+        # data_set.nr_virtual_points = nr_points_in_set
         data_set.nr_total_instances = nr_points_in_set + data_set.nr_virtual_points
-            
-    def _calcNumberOfPointsToAdd(self, nr_points_in_node, nr_points_inherited):    
+
+    def _calcNumberOfPointsToAdd(self, nr_points_in_node, nr_points_inherited):
         if nr_points_inherited < nr_points_in_node:
             nr_points = nr_points_in_node
         else:

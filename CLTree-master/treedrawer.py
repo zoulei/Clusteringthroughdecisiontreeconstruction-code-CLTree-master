@@ -314,8 +314,8 @@ def drawABtestTree(root):
     leafinfolist = leafinfo.items()
     leafinfolist.sort(key=lambda v:v[1])
     for i in xrange(len(leafinfolist) - 1):
-        if leafinfolist[i + 1][1] >= 1 and leafinfolist[i][1] < 1:
-            splitstr = "AVG = " + str("{:.2e}".format(avgdensity))
+        if leafinfolist[i + 1][1] >= 1.5 and leafinfolist[i][1] < 1.5:
+            splitstr = "1.5x AVG = " + str("{:.2e}".format(1.5*avgdensity))
         else:
             splitstr = ""
         writeline = "\""+ str(leafinfolist[i + 1][0]) + "\" -> \"" + str(leafinfolist[i][0]) + "\" [ label=\"" + splitstr + "\" ]" + "\n"
