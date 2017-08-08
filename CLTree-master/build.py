@@ -581,22 +581,28 @@ class CLNode(object):
         root = self.getroot()
         density = 1
         for attr in root.dataset.attr_names:
+            targetlen = 1
             if attr in rulldict:
                 if root.dataset.getAttrType(attr) == float:
                     min = root.dataset.get_min(attr)
                     max = root.dataset.get_max(attr)
-                    density *= calculatenumericallength(rulldict[attr],min,max)
+                    targetlen = calculatenumericallength(rulldict[attr],min,max)
                 else:
                     datarange = root.dataset.get_range(attr)
-                    density *= calculatecategoricallength(rulldict[attr], datarange)
+                    targetlen = calculatecategoricallength(rulldict[attr], datarange)
             else:
                 if root.dataset.getAttrType(attr) == float:
                     min = root.dataset.get_min(attr)
                     max = root.dataset.get_max(attr)
-                    density *= max - min
+                    targetlen = max - min
                 else:
                     datarange = root.dataset.get_range(attr)
-                    density *= len(datarange)
+                    targetlen = len(datarange)
+            if targetlen == 0:
+                continue
+            else:
+                density *= targetlen
+        print "ahaha : ",density
         density = self.dataset.length() * 1.0 / density
         return density
 

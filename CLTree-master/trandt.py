@@ -13,7 +13,7 @@ def gettrandict(headfname ,fname, ofile):
 
     header = header.strip().split(SEP)
     datatype = datatype.strip().split(SEP)
-    ignore = ignore[:-1].split(SEP)
+    ignore = ignore[:-1].rstrip().split(SEP)
     file.close()
 
     file = open(fname)
@@ -65,7 +65,9 @@ def gettrandict(headfname ,fname, ofile):
     file = open(fname)
     line = file.readline()
     data = line.strip().split(SEP)
+    print("=" * 100, ignore)
     clsidx = ignore.index("class")
+
     try:
         cls = data[clsidx]
     except:
