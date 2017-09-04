@@ -602,7 +602,7 @@ class CLNode(object):
                 continue
             else:
                 density *= targetlen
-        print "ahaha : ",density
+        # print "ahaha : ",density
         density = self.dataset.length() * 1.0 / density
         return density
 

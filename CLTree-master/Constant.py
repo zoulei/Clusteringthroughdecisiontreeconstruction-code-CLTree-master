@@ -7,15 +7,17 @@ OUTPUTTXT = CACHEDIR + "/cltree.txt"
 # DATAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/example.csv.tab"
 # SCHEMAFNAME = "/mnt/mfs/users/zoul15/didierrordata/focusdata/notagschema.csv"
 # DATAFNAME = "/mnt/mfs/users/zoul15/didierrordata/focusdata/samplednotagdata.log"
-SCHEMAFNAME = "/mnt/mfs/users/zoul15/airdata/schema.csv"
-DATAFNAME = "/mnt/mfs/users/zoul15/airdata/airline.csv.tab"
+# SCHEMAFNAME = "/mnt/mfs/users/zoul15/airdata/schema.csv"
+# DATAFNAME = "/mnt/mfs/users/zoul15/airdata/airline.csv.tab"
+SCHEMAFNAME = "/mnt/mfs/users/zoul15/didiorder/focusdata/schema.csv"
+DATAFNAME = "/mnt/mfs/users/zoul15/didiorder/focusdata/didiorder.csv"
 # SCHEMAFNAME = "example data/schema.csv"
 # DATAFNAME = "example data/example.csv.tab"
 DRAWIMAGE = True
 
 # ========== cltree parameters ======================
 NODERATIOTHRE = 0.05
-MININFORMATIONGAIN = 0.001
+MININFORMATIONGAIN = 0.01
 #RAWDATAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/20140922.csv.tab"
 #RAWDATAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/20140922.csv.tab"
 

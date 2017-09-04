@@ -73,7 +73,7 @@ def clmain():
     print '----------------'
     print 'Clustering      '
     print '----------------'
-    r = ArffReader(1000)
+    r = ArffReader(20000)
 
     #data = r.read('test/gen.arff')
     #data = r.read('test/gendis1.arff')

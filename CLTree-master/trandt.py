@@ -32,9 +32,7 @@ def gettrandict(headfname ,fname, ofile):
         # print len(data)
         # print line.split(SEP)
         for idx in xrange(len(data)):
-
             try :
-
                 if datatype[idx] == "c":
                     continue
                 value = data[idx]
@@ -44,10 +42,10 @@ def gettrandict(headfname ,fname, ofile):
                 trandict[title][value] = 1
 
             except:
-                print (line)
-                # print "idx:",idx
-                print (line.split(SEP))
-                raise
+                print ("read data error, error occurs in line:",idx1)
+                print ("the content of this line is:",line)
+                print ("parse result is:",line.split(SEP))
+                # raise
     file.close()
 
 
