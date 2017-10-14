@@ -576,10 +576,10 @@ class CLNode(object):
         self.root = p
         return p
 
-    def getdensity(self):
+    def getarea(self):
         rulldict = self.fetchcombinedrull()
         root = self.getroot()
-        density = 1
+        area = 1
         for attr in root.dataset.attr_names:
             targetlen = 1
             if attr in rulldict:
@@ -601,9 +601,12 @@ class CLNode(object):
             if targetlen == 0:
                 continue
             else:
-                density *= targetlen
+                area *= targetlen
+        return area
+
+    def getdensity(self):
         # print "ahaha : ",density
-        density = self.dataset.length() * 1.0 / density
+        density = self.dataset.length() * 1.0 / self.getarea()
         return density
 
     def expressCat(self,attribute,reversetran):

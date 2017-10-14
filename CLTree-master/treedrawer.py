@@ -232,6 +232,7 @@ def drawABtestTree(root):
     nodequeue = Queue.Queue()
     nodequeue.put(root)
     avgdensity = root.getdensity()
+    avgarea = root.getarea()
 
     leafinfo = {}
     leafnode = []
@@ -346,6 +347,8 @@ def drawABtestTree(root):
         wline += "Weight : "+str(int(node.dataset.length()*1.0/root.dataset.length()*100))+"%\n"
         wline += "Density : "+str("{:.2e}".format(node.getdensity()))+"\n"
         wline += "Density is " + str( round(node.getdensity() / avgdensity,1)) + " times of AVG\n"
+        wline += "Area : " + str("{:.2e}".format(node.getarea()))+"\n"
+        wline += "Area is " + str( round(node.getarea() / avgarea,1)) + " times of AVG\n"
     print wline
     file = open(Constant.OUTPUTTXT,"w")
     file.write(wline)
