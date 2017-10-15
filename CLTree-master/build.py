@@ -78,7 +78,8 @@ class BuildTree(object):
             dataset.sort(bestCut.attribute)
             idx = dataset.getInstanceIndex(bestCut.inst_id)
             lhs_set, rhs_set = self.datasetSplitter.split(dataset, bestCut.attribute, bestCut.value, idx)
-
+            lhs_set.setperiodicalinfo(dataset)
+            rhs_set.setperiodicalinfo(dataset)
             # for attribute in dataset.attr_names:
             #     if attribute == bestCut.attribute:
             #         continue
@@ -97,10 +98,12 @@ class BuildTree(object):
             # return lhs_set, rhs_set
         elif attrtype == int:
             lhs_set, rhs_set = self.datasetSplitter.splitCat(dataset, bestCut.attribute, bestCut.value)
+            lhs_set.setperiodicalinfo(dataset)
+            rhs_set.setperiodicalinfo(dataset)
         else:
             attr = bestCut.attribute
             peri = dataset.getperiod(attr)
-            if not dataset.isattrsplitted():
+            if not dataset.isattrsplitted(attr):
                 newdataset = self._generatenumericaldataset(dataset, attr, bestCut.m_splitpoint)
             else:
                 newdataset = self._generatenumericaldataset(dataset, attr)
@@ -150,7 +153,8 @@ class BuildTree(object):
         for attribute in dataset.attr_names:
             if attribute == bestCut.attribute:
                 continue
-            if dataset.attr_types_dict[attribute] == float:
+            # other attribute range just copy
+            if dataset.attr_types_dict[attribute] != int:
                 minVal = dataset.get_min(attribute)
                 maxVal = dataset.get_max(attribute)
                 lhs_set.set_min(attribute, minVal)
@@ -216,7 +220,7 @@ class BuildTree(object):
         return bestCut
 
     def _generatenumericaldataset(self, dataset, attribute, splitpoint = None):
-        valuelist = dataset.instance_values.tolist()
+        valuelist = dataset.fetchinstanceaslist()
         if splitpoint is not None:
             splitpoint = dataset.get_max(attribute)
         for idx in xrange(len(valuelist)):
@@ -225,7 +229,7 @@ class BuildTree(object):
         dttype = list()
         for attr,value in dataset.attr_types:
             dttype.append((attr,float))
-        output = np.array(valuelist, dtype=dttype)
+        output = np.array(Data.generatedata(valuelist), dtype=dttype)
         newdataset = Data(output, dataset.class_map, dataset.class_names, dataset.attr_types)
         newdataset.setperiodicalinfo(dataset)
         newdataset.sort(attribute)
@@ -459,7 +463,7 @@ class InfoGainCutFactory:
     def cut(self, dataset, attribute):
         di_cut = None
         max_info_gain = -1
-        if dataset.attr_types_dict[attribute] == float:
+        if dataset.attr_types_dict[attribute] != int:
             instances = dataset.getInstances(attribute)
             for i, value in enumerate(instances):
                 if len(instances) > i + 1 and instances[i + 1] == value:
@@ -480,7 +484,7 @@ class InfoGainCutFactory:
                         di_cut.m_ig = ig
                         # print "######curig:",max_info_gain, lset.length(),rset.length()
 
-        else:
+        elif dataset.attr_types_dict[attribute] == int:
             # categorical
             pass
             if len(dataset.get_range(attribute)) > 1:
@@ -504,6 +508,8 @@ class InfoGainCutFactory:
                         di_cut = Cut(attribute, value, 0, lset, rset)
                         di_cut.m_ig = ig
                         # print "######curig:",max_info_gain, lset.length(),rset.length()
+        else:
+            pass
         print "mxinfogain: ",max_info_gain
         # if di_cut is None:
         #     return None

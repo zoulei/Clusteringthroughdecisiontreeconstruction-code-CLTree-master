@@ -40,6 +40,19 @@ class Data:
         self.m_period = dict()
         self.initperiod()
 
+    @ staticmethod
+    def generatedata(data):
+        newdata = list()
+        for v in data:
+            newdata.append(tuple(v))
+        return newdata
+
+    def fetchinstanceaslist(self):
+        v = self.instance_values.tolist()
+        for idx in xrange(len(v)):
+            v[idx] = list(v[idx])
+        return v
+
     def initperiod(self):
         for attr, value in self.attr_types:
             if isinstance(value, float):
@@ -220,8 +233,8 @@ class ArffReader:
         readtype = list()
         for attr,value in types:
             readtype.append((attr,float))
-
         output = np.array(output, dtype=readtype)
+
         data = Data(output, class_map, classes_names, types)
                 
         print "read " + str(data.length()) + ' instances from ' + filename
@@ -230,7 +243,7 @@ class ArffReader:
 
         print "attribute range:\n"
         for attribute in data.attr_names:
-            if data.attr_types_dict[attribute] == float:
+            if data.attr_types_dict[attribute] != int:
                 print attribute,":",data.get_min(attribute),",",data.get_max(attribute)
             else:
                 print attribute,":",str(data.get_range(attribute))
