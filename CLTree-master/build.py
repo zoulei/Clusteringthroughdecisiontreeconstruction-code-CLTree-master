@@ -172,8 +172,10 @@ class BuildTree(object):
         bestCut = None # bestCut is outside of for loop
         for idx, attribute in enumerate(dataset.attr_names):
             attrtype = dataset.attr_types[idx + 2][1]
+            # raw_input()
+            print attribute, attrtype
             if attrtype == float:
-
+                # print attribute, attrtype
                 dataset.sort(attribute)
                 di_cut1 = self._calcCut1(dataset, attribute)
                 if di_cut1:
@@ -209,6 +211,7 @@ class BuildTree(object):
             else:
                 # periodical
                 pass
+                print "per"
                 curbestcut = self._findperiodicalbestcut(dataset, attribute)
                 # bestCut = self._selectLowerDensityCut(curbestcut,bestCut)
                 bestCut = self._selectHigherInfoCut(curbestcut, bestCut)
@@ -248,6 +251,7 @@ class BuildTree(object):
             return self._findperiodicalbestcutsimplecase(newdataset, attribute)
         else:
             bestcut = None
+            dataset.sort(attribute)
             instances = dataset.getInstances(attribute)
             for i, value in enumerate(instances):
                 if len(instances) > i + 1 and instances[i + 1] == value:
@@ -270,6 +274,8 @@ class BuildTree(object):
                 if curcut:
                     curcut.m_splitpoint = value
                 bestcut = self._selectLowerDensityCut(curcut, bestcut)
+
+                # print bestcut.m_splitpoint
             return bestcut
 
     def _findperiodicalbestcutsimplecase(self, dataset, attribute):
@@ -432,6 +438,11 @@ class DatasetSplitter:
         in_set.nr_virtual_points = int(abs(dataset.nr_virtual_points*((value-minV)/(maxV-minV))))
         out_set.nr_virtual_points = dataset.nr_virtual_points - in_set.nr_virtual_points
         if out_set.nr_virtual_points < 0:
+            print "===================="
+            print "value :",value
+            print "attribute :", attribute
+            print dataset.max_values
+            print dataset.min_values
             self.raiseUndefinedNumberOfPoints()
     
     def _updateVirtualPoints(self, data_set):            
@@ -650,6 +661,20 @@ class CLNode(object):
 
         return newrull
 
+    def getperiodicalrange(self, splitattr):
+        cpdataset = copy.deepcopy(self.dataset)
+        if cpdataset.get_max(splitattr) > cpdataset.get_min(splitattr):
+            cpdataset._init_max_min()
+            # combinedrulldict[splitattr]["upper"] = cpdataset.get_max(splitattr)
+            # combinedrulldict[splitattr]["lower"] = cpdataset.get_min(splitattr)
+            return cpdataset.get_max(splitattr), cpdataset.get_min(splitattr)
+        else:
+            cpdataset.increperiodical(splitattr)
+            cpdataset._init_max_min()
+            # combinedrulldict[splitattr]["upper"] = cpdataset.get_max(splitattr) - cpdataset.getperiod(splitattr)
+            # combinedrulldict[splitattr]["lower"] = cpdataset.get_min(splitattr)
+            return cpdataset.get_max(splitattr) - cpdataset.getperiod(splitattr), cpdataset.get_min(splitattr)
+
     def fetchcombinedrull(self):
         rulllist = self.fetchfullsplitrull()
 
@@ -681,15 +706,17 @@ class CLNode(object):
             else:
                 if splitattr in periodicalset:
                     continue
-                if self.dataset.get_max(splitattr) > self.dataset.get_min(splitattr):
-                    self.dataset._init_max_min()
-                    combinedrulldict[splitattr]["upper"] = self.dataset.get_max(splitattr)
-                    combinedrulldict[splitattr]["lower"] = self.dataset.get_min(splitattr)
-                else:
-                    self.dataset.increperiodical(splitattr)
-                    self.dataset._init_max_min()
-                    combinedrulldict[splitattr]["upper"] = self.dataset.get_max(splitattr) - self.dataset.getperiod(splitattr)
-                    combinedrulldict[splitattr]["lower"] = self.dataset.get_min(splitattr)
+                combinedrulldict[splitattr]["upperp"],combinedrulldict[splitattr]["lowerp"] = self.getperiodicalrange(splitattr)
+                # cpdataset = copy.deepcopy(self.dataset)
+                # if cpdataset.get_max(splitattr) > cpdataset.get_min(splitattr):
+                #     cpdataset._init_max_min()
+                #     combinedrulldict[splitattr]["upper"] = cpdataset.get_max(splitattr)
+                #     combinedrulldict[splitattr]["lower"] = cpdataset.get_min(splitattr)
+                # else:
+                #     cpdataset.increperiodical(splitattr)
+                #     cpdataset._init_max_min()
+                #     combinedrulldict[splitattr]["upper"] = cpdataset.get_max(splitattr) - cpdataset.getperiod(splitattr)
+                #     combinedrulldict[splitattr]["lower"] = cpdataset.get_min(splitattr)
                 periodicalset.add(splitattr)
 
         return combinedrulldict

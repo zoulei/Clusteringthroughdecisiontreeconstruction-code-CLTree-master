@@ -291,12 +291,15 @@ def drawABtestTree(root):
                     splitstr = "<= "+ str(parnode.value)
                 else:
                     splitstr = "> "+ str(parnode.value)
-            else:
+            elif parnode.dataset.attr_type(parnode.attribute) == int:
                 realvalue = trandict[parnode.attribute][parnode.value]
                 if curnode.direction == "l":
                     splitstr = realvalue
                 else:
                     splitstr = "NOT "+ realvalue
+            else:
+                max,min = curnode.getperiodicalrange(splitstr)
+                splitstr = "[" + str(max) + "," + str(min) + "]"
                 # splitstr.encode("utf-8")
             # addedge = pydot.Edge(parmap[curnode],addnode,label=splitstr)
             # str(parmap[curnode]).encode("utf-8")
