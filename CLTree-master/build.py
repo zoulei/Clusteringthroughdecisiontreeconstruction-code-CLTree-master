@@ -105,30 +105,47 @@ class BuildTree(object):
             else:
                 newdataset = self._generatenumericaldataset(dataset, attr)
                     # treat as numerical
-                idx = dataset.getInstanceIndex(bestCut.inst_id)
-                lhs_set, rhs_set = self.datasetSplitter.split(dataset, attr, bestCut.value, idx)
-                lhs_set.setperiodicalinfo(dataset)
-                rhs_set.setperiodicalinfo(dataset)
-                if not dataset.isattrrevrsered(attr) and dataset.isattrsplitted(attr):
-                    # numerical
-                    lhs_set.setperiodicalinfo(dataset)
-                    rhs_set.setperiodicalinfo(dataset)
-                elif dataset.isattrrevrsered(attr) and dataset.isattrsplitted(attr):
-                    # reversed numerical
+            idx = newdataset.getInstanceIndex(bestCut.inst_id)
+            lhs_set, rhs_set = self.datasetSplitter.split(newdataset, attr, bestCut.value, idx)
+
+            lhs_set.setperiodicalinfo(dataset)
+            rhs_set.setperiodicalinfo(dataset)
+            if not dataset.isattrrevrsered(attr) and dataset.isattrsplitted(attr):
+                # numerical
+                # lhs_set.setperiodicalinfo(dataset)
+                # rhs_set.setperiodicalinfo(dataset)
+                pass
+            elif dataset.isattrrevrsered(attr) and dataset.isattrsplitted(attr):
+                # reversed numerical
+                if lhs_set.get_max(attr) <= lhs_set.get_rootmax(attr):
+                    lhs_set.m_reversed.remove(attr)
+                    rhs_set.set_max(attr,dataset.get_max(attr))
+                else:
+                    lhs_set.set_max(attr,lhs_set.get_max(attr)-peri)
+                    lhs_set.getrealvalue(attr)
+                    rhs_set.m_reversed.remove(attr)
+                    rhs_set.set_max(attr,dataset.get_max(attr))
+                    rhs_set.set_min(attr,rhs_set.get_min(attr)-peri)
+                rhs_set.getrealvalue(attr)
+            else:
+                lhs_set.m_splitted.add(attr)
+                rhs_set.m_splitted.add(attr)
+                if bestCut.m_splitpoint == dataset.get_max(attr):
+                    # lhs_set.m_splitted.add(attr)
+                    # rhs_set.m_splitted.add(attr)
+                    pass
+                else:
                     if lhs_set.get_max(attr) <= lhs_set.get_rootmax(attr):
-                        lhs_set.m_reversed.remove(attr)
-                        rhs_set.set_max(dataset.get_max(attr))
+                        rhs_set.getrealvalue(attr)
+                        rhs_set.set_max(attr, rhs_set.get_max(attr) - peri)
+                        rhs_set.m_reversed.add(attr)
                     else:
-                        lhs_set.set_max(lhs_set.get_max(attr)-peri)
+                        lhs_set.set_max(attr, lhs_set.get_max(attr) - peri)
                         lhs_set.getrealvalue(attr)
-                        rhs_set.m_reversed.remove(attr)
-                        rhs_set.set_max(dataset.get_max(attr))
-                        rhs_set.set_min(rhs_set.get_min(attr)-peri)
-                    rhs_set.getrealvalue(attr)
-
-                # splitvalue1 = bestCut.m_splitpoint
-                # splitvalue2 =
-
+                        lhs_set.m_reversed.add(attr)
+                        rhs_set.set_max(attr, rhs_set.get_max(attr) - peri)
+                        rhs_set.set_min(attr, rhs_set.get_min(attr) - peri)
+                        rhs_set.getrealvalue(attr)
 
         for attribute in dataset.attr_names:
             if attribute == bestCut.attribute:
