@@ -53,6 +53,17 @@ class Data:
             v[idx] = list(v[idx])
         return v
 
+    def increperiodical(self, attr):
+        datalist = self.fetchinstanceaslist()
+        dataidx = self.attr_idx[attr]
+        for idx in xrange(len(datalist)):
+            datalist[idx][dataidx] += self.getperiod(attr)
+        # newdata = Data.generatedata(datalist)
+        readtype = list()
+        for attr,value in self.attr_types:
+            readtype.append((attr,float))
+        self.instance_values = np.array(Data.generatedata(datalist), readtype)
+
     def initperiod(self):
         for attr, value in self.attr_types:
             if isinstance(value, float):
@@ -60,11 +71,14 @@ class Data:
 
     def getrealvalue(self, attr):
         attridx = self.attr_idx[attr]
-        listdata = self.instance_values.tolist()
+        listdata = self.fetchinstanceaslist()
         for idx in xrange(len(listdata)):
             if listdata[idx][attridx] > self.get_rootmax(attr):
                 listdata[idx][attridx] -= self.getperiod(attr)
-        self.instance_values = np.array(listdata, self.attr_types)
+        readtype = list()
+        for attr,value in self.attr_types:
+            readtype.append((attr,float))
+        self.instance_values = np.array(Data.generatedata(listdata), readtype)
 
     def setperiodicalinfo(self, otherset):
         self.m_reversed = otherset.m_reversed

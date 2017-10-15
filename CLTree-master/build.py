@@ -267,7 +267,8 @@ class BuildTree(object):
                 dataset.max_values[dataset.attr_idx[attribute]] = oldmax
                 dataset.min_values[dataset.attr_idx[attribute]] = oldmin
                 curcut = self._findperiodicalbestcutsimplecase(newdataset, attribute)
-                curcut.m_splitpoint = value
+                if curcut:
+                    curcut.m_splitpoint = value
                 bestcut = self._selectLowerDensityCut(curcut, bestcut)
             return bestcut
 
@@ -346,13 +347,12 @@ class DatasetSplitter:
 
     # split < x and >= x
     def split(self, dataset, attribute, value, idx):
-
         try:
             l = dataset.instance_values[0:idx+1]
             r = dataset.instance_values[idx+1:]
         except:
-            l = dataset.instance_values[0:idx[0]]
-            r = dataset.instance_values[idx[0]:]
+            l = dataset.instance_values[0:idx[0]+1]
+            r = dataset.instance_values[idx[0]+1:]
                 
         lhs_set = Data(l, dataset.class_map, dataset.class_names, dataset.attr_types)
         rhs_set = Data(r, dataset.class_map, dataset.class_names, dataset.attr_types)        
@@ -635,6 +635,7 @@ class CLNode(object):
         return rull
 
     def fetchfullrawsplitrull(self):
+        # now this function is just used for print information
         rull = self.fetchfullsplitrull()
         print "rule:", rull
         newrull = []
@@ -656,6 +657,8 @@ class CLNode(object):
         # for catogorical data : {"is":,"not":[]}
         combinedrulldict = {}
 
+        periodicalset = set()
+
         for splittype,splitattr,splitvalue,direction in rulllist:
             if splitattr not in combinedrulldict:
                 combinedrulldict[splitattr] = {}
@@ -668,13 +671,26 @@ class CLNode(object):
                     oldvalue = combinedrulldict[splitattr].get("lower")
                     if oldvalue == None or splitvalue > oldvalue:
                         combinedrulldict[splitattr]["lower"] = splitvalue
-            else:
+            elif splittype == int:
                 if direction == "l":
                     combinedrulldict[splitattr]["is"] = [splitvalue,]
                 else:
                     if  "not" not in combinedrulldict[splitattr]:
                         combinedrulldict[splitattr]["not"] = []
                     combinedrulldict[splitattr]["not"].append(splitvalue)
+            else:
+                if splitattr in periodicalset:
+                    continue
+                if self.dataset.get_max(splitattr) > self.dataset.get_min(splitattr):
+                    self.dataset._init_max_min()
+                    combinedrulldict[splitattr]["upper"] = self.dataset.get_max(splitattr)
+                    combinedrulldict[splitattr]["lower"] = self.dataset.get_min(splitattr)
+                else:
+                    self.dataset.increperiodical(splitattr)
+                    self.dataset._init_max_min()
+                    combinedrulldict[splitattr]["upper"] = self.dataset.get_max(splitattr) - self.dataset.getperiod(splitattr)
+                    combinedrulldict[splitattr]["lower"] = self.dataset.get_min(splitattr)
+                periodicalset.add(splitattr)
 
         return combinedrulldict
 
