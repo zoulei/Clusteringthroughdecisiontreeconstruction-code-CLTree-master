@@ -77,7 +77,7 @@ class BuildTree(object):
 
             dataset.sort(bestCut.attribute)
             idx = dataset.getInstanceIndex(bestCut.inst_id)
-            lhs_set, rhs_set = self.datasetSplitter.split(dataset, bestCut.attribute, bestCut.value, idx+1)
+            lhs_set, rhs_set = self.datasetSplitter.split(dataset, bestCut.attribute, bestCut.value, idx)
 
             # for attribute in dataset.attr_names:
             #     if attribute == bestCut.attribute:
@@ -95,8 +95,41 @@ class BuildTree(object):
             #         rhs_set.set_range(attribute,attrrange)
 
             # return lhs_set, rhs_set
-        else:
+        elif attrtype == int:
             lhs_set, rhs_set = self.datasetSplitter.splitCat(dataset, bestCut.attribute, bestCut.value)
+        else:
+            attr = bestCut.attribute
+            peri = dataset.getperiod(attr)
+            if not dataset.isattrsplitted():
+                newdataset = self._generatenumericaldataset(dataset, attr, bestCut.m_splitpoint)
+            else:
+                newdataset = self._generatenumericaldataset(dataset, attr)
+                    # treat as numerical
+                idx = dataset.getInstanceIndex(bestCut.inst_id)
+                lhs_set, rhs_set = self.datasetSplitter.split(dataset, attr, bestCut.value, idx)
+                lhs_set.setperiodicalinfo(dataset)
+                rhs_set.setperiodicalinfo(dataset)
+                if not dataset.isattrrevrsered(attr) and dataset.isattrsplitted(attr):
+                    # numerical
+                    lhs_set.setperiodicalinfo(dataset)
+                    rhs_set.setperiodicalinfo(dataset)
+                elif dataset.isattrrevrsered(attr) and dataset.isattrsplitted(attr):
+                    # reversed numerical
+                    if lhs_set.get_max(attr) <= lhs_set.get_rootmax(attr):
+                        lhs_set.m_reversed.remove(attr)
+                        rhs_set.set_max(dataset.get_max(attr))
+                    else:
+                        lhs_set.set_max(lhs_set.get_max(attr)-peri)
+                        lhs_set.getrealvalue(attr)
+                        rhs_set.m_reversed.remove(attr)
+                        rhs_set.set_max(dataset.get_max(attr))
+                        rhs_set.set_min(rhs_set.get_min(attr)-peri)
+                    rhs_set.getrealvalue(attr)
+
+                # splitvalue1 = bestCut.m_splitpoint
+                # splitvalue2 =
+
+
         for attribute in dataset.attr_names:
             if attribute == bestCut.attribute:
                 continue
@@ -141,20 +174,102 @@ class BuildTree(object):
                     bestCut = self._selectLowerDensityCut(di_cut2, bestCut)
                 else:
                     bestCut = self._selectLowerDensityCut(di_cut3, bestCut)
-            else:
+            elif attrtype == int:
                 # categorical
                 pass
                 di_cut1 = self._calcCut1(dataset, attribute)
                 if di_cut1 is None: # Ignore dimension
                     continue
                 bestCut = self._selectLowerDensityCut(di_cut1, bestCut)
+            else:
+                # periodical
+                pass
+                curbestcut = self._findperiodicalbestcut(dataset, attribute)
+                bestCut = self._selectLowerDensityCut(curbestcut,bestCut)
 
         # if bestCut is None:
         #     return None
         # if len(bestCut.lhs_set.instance_values) < self.cutCreator.min_split or len(bestCut.rhs_set.instance_values) < self.cutCreator.min_split:
         #     return None
         return bestCut
-            
+
+    def _generatenumericaldataset(self, dataset, attribute, splitpoint = None):
+        valuelist = dataset.instance_values.tolist()
+        if splitpoint is not None:
+            splitpoint = dataset.get_max(attribute)
+        for idx in xrange(len(valuelist)):
+            if valuelist[idx][dataset.attr_idx[attribute]] <= splitpoint:
+                valuelist[idx][dataset.attr_idx[attribute]] += dataset.getperiod(attribute)
+        dttype = list()
+        for attr,value in dataset.attr_types:
+            dttype.append((attr,float))
+        output = np.array(valuelist, dtype=dttype)
+        newdataset = Data(output, dataset.class_map, dataset.class_names, dataset.attr_types)
+        newdataset.setperiodicalinfo(dataset)
+        newdataset.sort(attribute)
+        return newdataset
+
+    def _findperiodicalbestcut(self, dataset, attribute):
+        if not dataset.isattrrevrsered(attribute) and dataset.isattrsplitted(attribute):
+            # treat as numerical feature
+            return self._findperiodicalbestcutsimplecase(dataset, attribute)
+                # bestCut = self._selectLowerDensityCut(di_cut3, bestCut)
+        elif dataset.isattrrevrsered(attribute) and not dataset.isattrsplitted(attribute):
+            # treat as numerical feature, but need to be reversed, that means
+            # the left para need to add period.
+            pass
+            newdataset = self._generatenumericaldataset(dataset,attribute)
+            return self._findperiodicalbestcutsimplecase(newdataset, attribute)
+        else:
+            bestcut = None
+            instances = dataset.getInstances(attribute)
+            for i, value in enumerate(instances):
+                if len(instances) > i + 1 and instances[i + 1] == value:
+                    continue
+                oldmax = dataset.get_max(attribute)
+                oldmin = dataset.get_min(attribute)
+                dataset.max_values[dataset.attr_idx[attribute]] = value
+                if len(instances) > i + 1:
+                    dataset.min_values[dataset.attr_idx[attribute]] = instances[i + 1]
+                else:
+                    dataset.min_values[dataset.attr_idx[attribute]] = instances[0]
+                dataset.m_reversed.add(attribute)
+                dataset.m_splitted.add(attribute)
+                newdataset = self._generatenumericaldataset(dataset,attribute)
+                dataset.m_reversed.remove(attribute)
+                dataset.m_splitted.remove(attribute)
+                dataset.max_values[dataset.attr_idx[attribute]] = oldmax
+                dataset.min_values[dataset.attr_idx[attribute]] = oldmin
+                curcut = self._findperiodicalbestcutsimplecase(newdataset, attribute)
+                curcut.m_splitpoint = value
+                bestcut = self._selectLowerDensityCut(curcut, bestcut)
+            return bestcut
+
+    def _findperiodicalbestcutsimplecase(self, dataset, attribute):
+        dataset.sort(attribute)
+        di_cut1 = self._calcCut1(dataset, attribute)
+        if di_cut1:
+            print "split1:",attribute,di_cut1.value
+        if di_cut1 is None: # Ignore dimension
+            return
+
+        di_cut2 = self._calcCut2(di_cut1)
+        if di_cut2:
+            print "split2:",attribute,di_cut2.value
+        if di_cut2 is None:
+            return di_cut1
+            # bestCut = self._selectLowerDensityCut(di_cut1, bestCut)
+            # continue
+
+        di_cut3 = self._calcCut3(di_cut1, di_cut2)
+        if di_cut3:
+            print "split3:",attribute,di_cut3.value
+        if di_cut3 is None:
+            return di_cut2
+            # bestCut = self._selectLowerDensityCut(di_cut2, bestCut)
+        else:
+            return di_cut3
+
     def _calcCut1(self, dataset, attribute):
         print "cut by attr:",attribute
         return self.cutCreator.cut(dataset, attribute) 
@@ -200,10 +315,9 @@ class DatasetSplitter:
     # split < x and >= x
     def split(self, dataset, attribute, value, idx):
 
-
         try:
-            l = dataset.instance_values[0:idx]
-            r = dataset.instance_values[idx:]
+            l = dataset.instance_values[0:idx+1]
+            r = dataset.instance_values[idx+1:]
         except:
             l = dataset.instance_values[0:idx[0]]
             r = dataset.instance_values[idx[0]:]
@@ -218,6 +332,26 @@ class DatasetSplitter:
         self._updateVirtualPoints(rhs_set)
         
         return lhs_set, rhs_set
+
+    # def splitPeriodical(self, dataset, attribute, value, idx):
+    #     pass
+    #     try:
+    #         l = dataset.instance_values[0:idx+1]
+    #         r = dataset.instance_values[idx+1:]
+    #     except:
+    #         l = dataset.instance_values[0:idx[0]]
+    #         r = dataset.instance_values[idx[0]:]
+    #
+    #     lhs_set = Data(l, dataset.class_map, dataset.class_names, dataset.attr_types)
+    #     rhs_set = Data(r, dataset.class_map, dataset.class_names, dataset.attr_types)
+    #
+    #     rhs_set.set_min(attribute, value)
+    #
+    #     self._splitNrVirtualPoints(dataset, attribute, value, lhs_set, rhs_set)
+    #     self._updateVirtualPoints(lhs_set)
+    #     self._updateVirtualPoints(rhs_set)
+    #
+    #     return lhs_set, rhs_set
 
     def splitCat(self, dataset, attribute, value):
         pass
@@ -302,8 +436,10 @@ class InfoGainCutFactory:
             for i, value in enumerate(instances):
                 if len(instances) > i + 1 and instances[i + 1] == value:
                     continue
+                # if len(instances) == i + 1:
+                #     continue
                 if self._hasRectangle(dataset, attribute, value):
-                    lhs_set, rhs_set = self.datasetSplitter.split(dataset, attribute, value, i+1)
+                    lhs_set, rhs_set = self.datasetSplitter.split(dataset, attribute, value, i)
 
                     # why update virtual points number before calculate info gain
                     ig, lset, rset = self._info_gain(dataset, lhs_set, rhs_set)

@@ -3,7 +3,7 @@ import copy
 
 class Data:
     '''ARFF Data'''
-    def __init__(self, instance_values, class_map, class_names, types):
+    def __init__(self, instance_values, class_map, class_names, types, rootmax = None, rootmin = None):
         # self.real_types = types
         # floattype = list()
         # for attr, value in types.items():
@@ -30,6 +30,48 @@ class Data:
         self.nr_virtual_points = len(self.instance_values)
         # this is total point
         self.nr_total_instances = 2*self.nr_virtual_points
+
+        if rootmax is not None:
+            self.m_rootmax = rootmax
+        else:
+            self.m_rootmax = self.max_values
+
+        if rootmin is not None:
+            self.m_rootmin = rootmin
+        else:
+            self.m_rootmin = self.min_values
+
+        self.m_reversed = set()
+        self.m_splitted = set()
+
+        self.m_period = dict()
+
+    def getrealvalue(self, attr):
+        attridx = self.attr_idx[attr]
+        listdata = self.instance_values.tolist()
+        for idx in xrange(len(listdata)):
+            if listdata[idx][attridx] > self.get_rootmax(attr):
+                listdata[idx][attridx] -= self.getperiod(attr)
+        self.instance_values = np.array(listdata, self.attr_types)
+
+    def setperiodicalinfo(self, otherset):
+        self.m_reversed = otherset.m_reversed
+        self.m_splitted = otherset.m_splitted
+        self.m_period = otherset.m_period
+        self.m_rootmax = otherset.m_rootmax
+        self.m_rootmin = otherset.m_rootmin
+
+    # def increperiod(self, attr):
+    #     self.instance_values
+
+    def isattrsplitted(self, attr):
+        return attr in self.m_splitted
+
+    def isattrrevrsered(self, attr):
+        return attr in self.m_reversed
+
+    def getperiod(self, attr):
+        return self.m_period[attr]
 
     def get_range(self,attribute):
         return self._attr_range[attribute]
@@ -136,6 +178,13 @@ class Data:
 
     def getAttrType(self,attr):
         return self.attr_types_dict[attr]
+
+    def get_rootmax(self, attribute):
+        idx = self.attr_idx[attribute]
+        return self.m_rootmax[idx]
+    def get_rootmin(self, attribute):
+        idx = self.attr_idx[attribute]
+        return self.m_rootmin[idx]
 
     def get_max(self, attribute):
         idx = self.attr_idx[attribute]
