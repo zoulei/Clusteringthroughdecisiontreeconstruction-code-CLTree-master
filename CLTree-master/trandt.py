@@ -33,7 +33,7 @@ def gettrandict(headfname ,fname, ofile):
         # print line.split(SEP)
         for idx in xrange(len(data)):
             try :
-                if datatype[idx] == "c":
+                if datatype[idx] != "d":
                     continue
                 value = data[idx]
                 if value == "":
@@ -88,8 +88,10 @@ def gettrandict(headfname ,fname, ofile):
         ign = ignore[idx]
         if dtp == "d":
             writeline = "@attribute "+ title +" cat"
-        else:
+        elif dtp == "c":
             writeline = "@attribute "+ title +" numeric"
+        else:
+            writeline = "@attribute "+ title +" " + dtp
         if ign == "class":
             writeline = "@attribute class {"+cls+"}"
         if ign == "i":
@@ -110,9 +112,7 @@ def gettrandict(headfname ,fname, ofile):
 
         for idx in xrange(len(data) - 1):
             title = header[idx]
-            if datatype[idx] == "c":
-                continue
-            elif datatype[idx] == "d":
+            if datatype[idx] == "d":
                 if data[idx] == "":
                     data[idx] = "None"
                 data[idx] = trandict[title][data[idx]]

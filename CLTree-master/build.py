@@ -181,28 +181,33 @@ class BuildTree(object):
                 if di_cut2:
                     print "split2:",attribute,di_cut2.value
                 if di_cut2 is None:
-                    bestCut = self._selectLowerDensityCut(di_cut1, bestCut)
+                    # bestCut = self._selectLowerDensityCut(di_cut1, bestCut)
+                    bestCut = self._selectHigherInfoCut(di_cut1, bestCut)
                     continue
 
                 di_cut3 = self._calcCut3(di_cut1, di_cut2)
                 if di_cut3:
                     print "split3:",attribute,di_cut3.value
                 if di_cut3 is None:
-                    bestCut = self._selectLowerDensityCut(di_cut2, bestCut)
+                    # bestCut = self._selectLowerDensityCut(di_cut2, bestCut)
+                    bestCut = self._selectHigherInfoCut(di_cut2, bestCut)
                 else:
-                    bestCut = self._selectLowerDensityCut(di_cut3, bestCut)
+                    # bestCut = self._selectLowerDensityCut(di_cut3, bestCut)
+                    bestCut = self._selectHigherInfoCut(di_cut3, bestCut)
             elif attrtype == int:
                 # categorical
                 pass
                 di_cut1 = self._calcCut1(dataset, attribute)
                 if di_cut1 is None: # Ignore dimension
                     continue
-                bestCut = self._selectLowerDensityCut(di_cut1, bestCut)
+                # bestCut = self._selectLowerDensityCut(di_cut1, bestCut)
+                bestCut = self._selectHigherInfoCut(di_cut1, bestCut)
             else:
                 # periodical
                 pass
                 curbestcut = self._findperiodicalbestcut(dataset, attribute)
-                bestCut = self._selectLowerDensityCut(curbestcut,bestCut)
+                # bestCut = self._selectLowerDensityCut(curbestcut,bestCut)
+                bestCut = self._selectHigherInfoCut(curbestcut, bestCut)
 
         # if bestCut is None:
         #     return None
@@ -312,6 +317,12 @@ class BuildTree(object):
         rd2 = cut2.getRelativeDensityOfLowerDensityRegion()
         if rd1 < rd2: return cut1
         else: return cut2
+
+    def _selectHigherInfoCut(self, cut1, cut2):
+        if cut1 is None: return cut2
+        if cut2 is None: return cut1
+        if cut1.m_ig < cut2.m_ig: return cut2
+        else: return cut1
         
     def _plotCut(self, bestCut, dataset, lhs_dataset, rhs_dataset):
         if lhs_dataset.length() > 0 or rhs_dataset.length() > 0:
@@ -466,12 +477,9 @@ class InfoGainCutFactory:
                     if ig > max_info_gain:
                         max_info_gain = ig
                         di_cut = Cut(attribute, value, dataset.getId(i), lset, rset)
+                        di_cut.m_ig = ig
                         # print "######curig:",max_info_gain, lset.length(),rset.length()
-                        # if lset.length() ==52:
-                        #     print "lset:"
-                        #     print lset
-                        #     print "rset:"
-                        #     print rset
+
         else:
             # categorical
             pass
@@ -494,6 +502,7 @@ class InfoGainCutFactory:
                         max_info_gain = ig
                         #di_cut = Cut(attribute, value, dataset.getId(i), lset, rset)
                         di_cut = Cut(attribute, value, 0, lset, rset)
+                        di_cut.m_ig = ig
                         # print "######curig:",max_info_gain, lset.length(),rset.length()
         print "mxinfogain: ",max_info_gain
         # if di_cut is None:

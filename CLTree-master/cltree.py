@@ -21,7 +21,7 @@ class CLTree:
 
     def buildTree(self):
         b = BuildTree(self.min_split, self.min_infogain)
-        self.root = b.build(self.dataset)        
+        self.root = b.build(self.dataset)
 
     def pruneTree(self, min_y, min_rd):
         if self.root is None:

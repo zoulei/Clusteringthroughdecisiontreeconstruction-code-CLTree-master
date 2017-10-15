@@ -3,7 +3,7 @@ import copy
 
 class Data:
     '''ARFF Data'''
-    def __init__(self, instance_values, class_map, class_names, types, rootmax = None, rootmin = None):
+    def __init__(self, instance_values, class_map, class_names, types):
         # self.real_types = types
         # floattype = list()
         # for attr, value in types.items():
@@ -31,20 +31,19 @@ class Data:
         # this is total point
         self.nr_total_instances = 2*self.nr_virtual_points
 
-        if rootmax is not None:
-            self.m_rootmax = rootmax
-        else:
-            self.m_rootmax = self.max_values
-
-        if rootmin is not None:
-            self.m_rootmin = rootmin
-        else:
-            self.m_rootmin = self.min_values
+        self.m_rootmax = self.max_values
+        self.m_rootmin = self.min_values
 
         self.m_reversed = set()
         self.m_splitted = set()
 
         self.m_period = dict()
+        self.initperiod()
+
+    def initperiod(self):
+        for attr, value in self.attr_types:
+            if isinstance(value, float):
+                self.m_period[attr] = value
 
     def getrealvalue(self, attr):
         attridx = self.attr_idx[attr]
@@ -266,7 +265,8 @@ class ArffReader:
                 elif attr_name == "class":
                     classes = attr_type.split(",")
                 else:
-                    raise NotImplemented()
+                    dtype.append((attr_name, float(attr_type)))
+                    # raise NotImplemented()
         return dtype, classes
 
     def _getAttribute(self, line):
