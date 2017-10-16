@@ -298,8 +298,15 @@ def drawABtestTree(root):
                 else:
                     splitstr = "NOT "+ realvalue
             else:
-                max,min = curnode.getperiodicalrange(splitstr)
+                # try:
+                max,min = curnode.getperiodicalrange(parnode.attribute)
                 splitstr = "[" + str(max) + "," + str(min) + "]"
+                # except:
+                #     print "--------------------"
+                #     print parnode.dataset.attr_type(parnode.attribute)
+                #     print parnode.attribute
+                #     raise
+
                 # splitstr.encode("utf-8")
             # addedge = pydot.Edge(parmap[curnode],addnode,label=splitstr)
             # str(parmap[curnode]).encode("utf-8")

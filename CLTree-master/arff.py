@@ -80,6 +80,11 @@ class Data:
             readtype.append((attr,float))
         self.instance_values = np.array(Data.generatedata(listdata), readtype)
 
+        if len(self.instance_values) > 1:
+            self.instance_view = self.instance_values.view(dtype=float).reshape(len(self.instance_values),-1)
+        else:
+            self.instance_view = self.instance_values.view(dtype = float)
+
     def setperiodicalinfo(self, otherset):
         self.m_reversed = otherset.m_reversed
         self.m_splitted = otherset.m_splitted

@@ -56,9 +56,12 @@ class BuildTree(object):
         
         if bestCut is None:
             return
-        print "bestCut:",bestCut.attribute,bestCut.value
+        # print "bestCut:",bestCut.attribute,bestCut.value
         lhs_dataset, rhs_dataset = self._splitDatasetUsingBestCut(dataset, bestCut)
-        
+        print lhs_dataset.get_min("hour") ,lhs_dataset.get_max("hour") ,rhs_dataset.get_min("hour") , rhs_dataset.get_max("hour")
+        if lhs_dataset.get_min("hour") > 24 or lhs_dataset.get_max("hour") > 24 or rhs_dataset.get_min("hour") > 24 or rhs_dataset.get_max("hour") > 24:
+            pass
+            qwe
         #self._plotCut(bestCut, dataset, lhs_dataset, rhs_dataset)
         # if depth == 1:
         #     return
@@ -72,6 +75,7 @@ class BuildTree(object):
         if depth==0 and self.root is None: return True
         
     def _splitDatasetUsingBestCut(self, dataset, bestCut):
+        print "bestCut:",bestCut.attribute, bestCut.value
         attrtype = dataset.attr_types_dict[bestCut.attribute]
         if attrtype == float:
 
@@ -109,6 +113,7 @@ class BuildTree(object):
                 newdataset = self._generatenumericaldataset(dataset, attr)
                     # treat as numerical
             idx = newdataset.getInstanceIndex(bestCut.inst_id)
+            print "newdataset:::::::::::::",newdataset.get_min(attr),newdataset.get_max(attr)
             lhs_set, rhs_set = self.datasetSplitter.split(newdataset, attr, bestCut.value, idx)
 
             lhs_set.setperiodicalinfo(dataset)
@@ -134,9 +139,13 @@ class BuildTree(object):
                 lhs_set.m_splitted.add(attr)
                 rhs_set.m_splitted.add(attr)
                 if bestCut.m_splitpoint == dataset.get_max(attr):
-                    # lhs_set.m_splitted.add(attr)
-                    # rhs_set.m_splitted.add(attr)
-                    pass
+                    lhs_set.set_max(attr, lhs_set.get_max(attr) - peri)
+                    lhs_set.set_min(attr, lhs_set.get_min(attr) - peri)
+                    lhs_set.getrealvalue(attr)
+                    rhs_set.set_max(attr, rhs_set.get_max(attr) - peri)
+                    rhs_set.set_min(attr, rhs_set.get_min(attr) - peri)
+                    rhs_set.getrealvalue(attr)
+                    # pass
                 else:
                     if lhs_set.get_max(attr) <= lhs_set.get_rootmax(attr):
                         rhs_set.getrealvalue(attr)
@@ -173,27 +182,27 @@ class BuildTree(object):
         for idx, attribute in enumerate(dataset.attr_names):
             attrtype = dataset.attr_types[idx + 2][1]
             # raw_input()
-            print attribute, attrtype
+            # print attribute, attrtype
             if attrtype == float:
                 # print attribute, attrtype
                 dataset.sort(attribute)
                 di_cut1 = self._calcCut1(dataset, attribute)
-                if di_cut1:
-                    print "split1:",attribute,di_cut1.value
+                # if di_cut1:
+                #     print "split1:",attribute,di_cut1.value
                 if di_cut1 is None: # Ignore dimension
                     continue
 
                 di_cut2 = self._calcCut2(di_cut1)
-                if di_cut2:
-                    print "split2:",attribute,di_cut2.value
+                # if di_cut2:
+                #     print "split2:",attribute,di_cut2.value
                 if di_cut2 is None:
                     # bestCut = self._selectLowerDensityCut(di_cut1, bestCut)
                     bestCut = self._selectHigherInfoCut(di_cut1, bestCut)
                     continue
 
                 di_cut3 = self._calcCut3(di_cut1, di_cut2)
-                if di_cut3:
-                    print "split3:",attribute,di_cut3.value
+                # if di_cut3:
+                #     print "split3:",attribute,di_cut3.value
                 if di_cut3 is None:
                     # bestCut = self._selectLowerDensityCut(di_cut2, bestCut)
                     bestCut = self._selectHigherInfoCut(di_cut2, bestCut)
@@ -211,7 +220,7 @@ class BuildTree(object):
             else:
                 # periodical
                 pass
-                print "per"
+                # print "per"
                 curbestcut = self._findperiodicalbestcut(dataset, attribute)
                 # bestCut = self._selectLowerDensityCut(curbestcut,bestCut)
                 bestCut = self._selectHigherInfoCut(curbestcut, bestCut)
@@ -223,8 +232,10 @@ class BuildTree(object):
         return bestCut
 
     def _generatenumericaldataset(self, dataset, attribute, splitpoint = None):
+        if (dataset.get_max(attribute) > dataset.get_min(attribute) and splitpoint is None):
+            return copy.deepcopy(dataset)
         valuelist = dataset.fetchinstanceaslist()
-        if splitpoint is not None:
+        if splitpoint is  None:
             splitpoint = dataset.get_max(attribute)
         for idx in xrange(len(valuelist)):
             if valuelist[idx][dataset.attr_idx[attribute]] <= splitpoint:
@@ -265,7 +276,9 @@ class BuildTree(object):
                     dataset.min_values[dataset.attr_idx[attribute]] = instances[0]
                 dataset.m_reversed.add(attribute)
                 dataset.m_splitted.add(attribute)
-                newdataset = self._generatenumericaldataset(dataset,attribute)
+                newdataset = self._generatenumericaldataset(dataset,attribute,value)
+                # print "--------------------------------------------------------------"
+                # print value, newdataset.max_values, newdataset.min_values
                 dataset.m_reversed.remove(attribute)
                 dataset.m_splitted.remove(attribute)
                 dataset.max_values[dataset.attr_idx[attribute]] = oldmax
@@ -273,7 +286,7 @@ class BuildTree(object):
                 curcut = self._findperiodicalbestcutsimplecase(newdataset, attribute)
                 if curcut:
                     curcut.m_splitpoint = value
-                bestcut = self._selectLowerDensityCut(curcut, bestcut)
+                bestcut = self._selectHigherInfoCut(curcut, bestcut)
 
                 # print bestcut.m_splitpoint
             return bestcut
@@ -281,22 +294,22 @@ class BuildTree(object):
     def _findperiodicalbestcutsimplecase(self, dataset, attribute):
         dataset.sort(attribute)
         di_cut1 = self._calcCut1(dataset, attribute)
-        if di_cut1:
-            print "split1:",attribute,di_cut1.value
+        # if di_cut1:
+        #     print "split1:",attribute,di_cut1.value
         if di_cut1 is None: # Ignore dimension
             return
 
         di_cut2 = self._calcCut2(di_cut1)
-        if di_cut2:
-            print "split2:",attribute,di_cut2.value
+        # if di_cut2:
+        #     print "split2:",attribute,di_cut2.value
         if di_cut2 is None:
             return di_cut1
             # bestCut = self._selectLowerDensityCut(di_cut1, bestCut)
             # continue
 
         di_cut3 = self._calcCut3(di_cut1, di_cut2)
-        if di_cut3:
-            print "split3:",attribute,di_cut3.value
+        # if di_cut3:
+        #     print "split3:",attribute,di_cut3.value
         if di_cut3 is None:
             return di_cut2
             # bestCut = self._selectLowerDensityCut(di_cut2, bestCut)
@@ -304,7 +317,7 @@ class BuildTree(object):
             return di_cut3
 
     def _calcCut1(self, dataset, attribute):
-        print "cut by attr:",attribute
+        # print "cut by attr:",attribute
         return self.cutCreator.cut(dataset, attribute) 
 
     def _calcCut2(self, di_cut1):   
@@ -332,8 +345,8 @@ class BuildTree(object):
     def _selectHigherInfoCut(self, cut1, cut2):
         if cut1 is None: return cut2
         if cut2 is None: return cut1
-        if cut1.m_ig < cut2.m_ig: return cut2
-        else: return cut1
+        if cut1.m_ig > cut2.m_ig: return cut1
+        else: return cut2
         
     def _plotCut(self, bestCut, dataset, lhs_dataset, rhs_dataset):
         if lhs_dataset.length() > 0 or rhs_dataset.length() > 0:
@@ -482,7 +495,16 @@ class InfoGainCutFactory:
                 # if len(instances) == i + 1:
                 #     continue
                 if self._hasRectangle(dataset, attribute, value):
-                    lhs_set, rhs_set = self.datasetSplitter.split(dataset, attribute, value, i)
+
+                    try:
+                        lhs_set, rhs_set = self.datasetSplitter.split(dataset, attribute, value, i)
+                    except:
+                        print "----------------"
+                        print attribute,i, value, dataset.get_max(attribute), dataset.get_min(attribute)
+                        dataset._init_max_min()
+                        print attribute,i, value, dataset.get_max(attribute), dataset.get_min(attribute)
+                        print instances
+                        raise
 
                     # why update virtual points number before calculate info gain
                     ig, lset, rset = self._info_gain(dataset, lhs_set, rhs_set)
@@ -521,7 +543,7 @@ class InfoGainCutFactory:
                         # print "######curig:",max_info_gain, lset.length(),rset.length()
         else:
             pass
-        print "mxinfogain: ",max_info_gain
+        # print "mxinfogain: ",max_info_gain
         # if di_cut is None:
         #     return None
         # if len(di_cut.lhs_set.instance_values) < self.min_split or len(di_cut.rhs_set.instance_values) < self.min_split:
@@ -725,7 +747,7 @@ class CLNode(object):
         combinedrulldict = self.fetchcombinedrull()
         revdict = trandt.readreversedict(Constant.TRANFILE)
         for attr, bounddict in combinedrulldict.items():
-            if self.getroot().dataset.getAttrType(attr) == float:
+            if self.getroot().dataset.getAttrType(attr) != int:
                 continue
             for key, valuelist in bounddict.items():
                 combinedrulldict[attr][key] = [revdict[attr][v] for v in valuelist]
@@ -798,17 +820,25 @@ class CLNode(object):
                     min = root.dataset.get_min(attr)
                     max = root.dataset.get_max(attr)
                     targetlen = calculatenumericallength(rulldict[attr],min,max)
-                else:
+                elif root.dataset.getAttrType(attr) == int:
                     datarange = root.dataset.get_range(attr)
                     targetlen = calculatecategoricallength(rulldict[attr], datarange)
+                else:
+                    max, min  = self.getperiodicalrange(attr)
+                    if max > min:
+                        targetlen = max - min
+                    else:
+                        targetlen = max + self.dataset.getperiod(attr) - min
             else:
                 if root.dataset.getAttrType(attr) == float:
                     min = root.dataset.get_min(attr)
                     max = root.dataset.get_max(attr)
                     targetlen = max - min
-                else:
+                elif root.dataset.getAttrType(attr) == int:
                     datarange = root.dataset.get_range(attr)
                     targetlen = len(datarange)
+                else:
+                    targetlen = self.dataset.getperiod(attr)
             if targetlen == 0:
                 continue
             else:
@@ -855,6 +885,17 @@ class CLNode(object):
             return "< " + str(ownmin)
         return "> " + str(ownmin) +" and < " + str(ownmax)
 
+    def expressPer(self,attribute):
+        rootmax = self.root.dataset.get_max(attribute)
+        rootmin = self.root.dataset.get_min(attribute)
+        # ownmax = self.dataset.get_max(attribute)
+        # ownmin = self.dataset.get_min(attribute)
+
+        ownmax, ownmin = self.getperiodicalrange(attribute)
+        if rootmax == ownmax and rootmin == ownmin:
+            return ""
+        return "[ "+str(ownmin) +","+str(ownmax)+"]"
+
     def __str__(self):
         attr = list()
         p = self
@@ -877,11 +918,14 @@ class CLNode(object):
                 if exp:
                     s += name + ' max: ' + str(self.dataset.get_max(name))+\
                     ' min: ' + str(self.dataset.get_min(name))+'\n'
-            else:
+            elif self.dataset.attr_types_dict[name] == int:
                 exp = self.expressCat(name,revdict)
                 if exp:
                     s += name + " : " + self.expressCat(name,revdict) + "\n"
-
+            else:
+                exp = self.expressPer(name)
+                if exp:
+                    s += name +" : " + exp + "\n"
         return s
 
 
