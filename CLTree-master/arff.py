@@ -57,6 +57,8 @@ class Data:
         datalist = self.fetchinstanceaslist()
         dataidx = self.attr_idx[attr]
         for idx in xrange(len(datalist)):
+            if datalist[idx][dataidx] > self.get_max(attr):
+                continue
             datalist[idx][dataidx] += self.getperiod(attr)
         # newdata = Data.generatedata(datalist)
         readtype = list()
@@ -86,11 +88,11 @@ class Data:
             self.instance_view = self.instance_values.view(dtype = float)
 
     def setperiodicalinfo(self, otherset):
-        self.m_reversed = otherset.m_reversed
-        self.m_splitted = otherset.m_splitted
-        self.m_period = otherset.m_period
-        self.m_rootmax = otherset.m_rootmax
-        self.m_rootmin = otherset.m_rootmin
+        self.m_reversed = copy.deepcopy(otherset.m_reversed)
+        self.m_splitted = copy.deepcopy(otherset.m_splitted)
+        self.m_period = copy.deepcopy(otherset.m_period)
+        self.m_rootmax = copy.deepcopy(otherset.m_rootmax)
+        self.m_rootmin = copy.deepcopy(otherset.m_rootmin)
 
     # def increperiod(self, attr):
     #     self.instance_values

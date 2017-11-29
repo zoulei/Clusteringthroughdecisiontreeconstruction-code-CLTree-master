@@ -1,4 +1,4 @@
-from build import CLNode
+
 import Queue
 # import pydot
 import trandt
@@ -210,24 +210,8 @@ def drawABtestTree(root):
 
     writestr = ""
 
-    # file = open(schemafname)
-    # headerline = file.readline()
-    # headerline = headerline.lower()
-    # typeline = file.readline()
-    # classline = file.readline()
-    # header = headerline.strip().split("\t")
-    # # headerdict = dict(zip(header,range(len(header))))
-    # classdata = classline[:-1].split("\t")
-    # classidx = classdata.index("class")
-    # file.close()
-    #
-    # classheader = header[classidx]
     import pprint
     pp = pprint.PrettyPrinter(indent=4)
-    # pp.pprint(trandict)
-    # print classheader
-    # print root.dataset.class_names[0]
-    targetcls = root.dataset.class_names[0]
 
     nodequeue = Queue.Queue()
     nodequeue.put(root)
@@ -241,32 +225,13 @@ def drawABtestTree(root):
         curnode = nodequeue.get()
         idx += 1
 
-        rulllist = curnode.fetchfullrawsplitrull()
-        # print rulllist
-        # rawdatainfo = calABtestdata(schemafname,datafname,rulllist)
-        # print "==========="
-        # pp.pprint(rawdatainfo)
-        # print "-------------"
-        # pp.pprint(rulllist)
-        # if "slow" in rawdatainfo:
-        #     print "aaa"
-        # print "bbb:",rawdatainfo.keys(),targetcls,
-        # targetclsrate = rawdatainfo[targetcls] * 1.0 / (sum(rawdatainfo.values()) - rawdatainfo["total"])
-        # includedata = (sum(rawdatainfo.values()) - rawdatainfo["total"]) * 1.0 / rawdatainfo["total"]
-
         print "node: ",curnode.getNrInstancesInNode(),curnode.attribute,curnode.value,curnode.direction,curnode.depth
 
         datalen = curnode.dataset.length()
-        rd =  curnode.getRelativeDensity()
-        # nodestr = "WT:" + str(int(datalen*1.0/root.dataset.length()*100)) + "%\\nRD:" + str(rd) + "\\n" + targetcls + "%:" \
-        #           + str(round(targetclsrate * 100,1)) + "%\\nEP:" + str(round(includedata*100,1) )+"%\\n" \
-        #             + "DT:" + str(curnode.getdensity())
-        nodestr = "WT:" + str(int(datalen*1.0/root.dataset.length()*100)) +"%\\n" \
+        nodestr = "WT:" + str(round(datalen*1.0/root.dataset.length()*100,1)) +"%\\n" \
                     + "DT:" + str("{:.2e}".format(curnode.getdensity()))
         if curnode.attribute:
             nodestr = curnode.attribute + "\\n" + nodestr
-        # addnode = pydot.Node(nodestr)
-        # graph.add_node(addnode)
 
         if not curnode.isPrune():
             shape = "rectangle"
@@ -293,6 +258,7 @@ def drawABtestTree(root):
                     splitstr = "> "+ str(parnode.value)
             elif parnode.dataset.attr_type(parnode.attribute) == int:
                 realvalue = trandict[parnode.attribute][parnode.value]
+                # realvalue = parnode.attribute + str(int(parnode.value))
                 if curnode.direction == "l":
                     splitstr = realvalue
                 else:
@@ -300,17 +266,7 @@ def drawABtestTree(root):
             else:
                 # try:
                 max,min = curnode.getperiodicalrange(parnode.attribute)
-                splitstr = "[" + str(max) + "," + str(min) + "]"
-                # except:
-                #     print "--------------------"
-                #     print parnode.dataset.attr_type(parnode.attribute)
-                #     print parnode.attribute
-                #     raise
-
-                # splitstr.encode("utf-8")
-            # addedge = pydot.Edge(parmap[curnode],addnode,label=splitstr)
-            # str(parmap[curnode]).encode("utf-8")
-            # parmap[curnode].encode("utf-8")
+                splitstr = "[" + str(int(min)) + "," + str(int(max)) + "]"
             writeline ="\""+ str(parmap[curnode]) + "\" -> \"" + str(idx) + "\" [ label=\"" + splitstr + "\" ]" + "\n"
             writestr += writeline
             # graph.add_edge(addedge)

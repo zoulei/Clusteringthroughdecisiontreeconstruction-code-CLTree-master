@@ -7,6 +7,7 @@ import Constant
 import trandt
 
 import ABTest
+import time
 
 class CLTree:
     def __init__(self, dataset, min_split=1, min_infogain = -100):
@@ -66,6 +67,7 @@ class CLTree:
 
     
 def clmain():
+    start = time.time()
     print "transfer data format"
     trandt.trandata(Constant.SCHEMAFNAME,Constant.DATAFNAME,Constant.DATAFILE,Constant.TRANFILE)
 
@@ -104,9 +106,14 @@ def clmain():
     # Specifies whether two adjacent regions should joined to form 
     # a bigger region. Recommended value: 10-30%
     #min_rd = 70
-    
+    # treedrawer.drawABtestTree(cltree.root)
+    # raw_input("first")
     cltree.pruneTree(Constant.MINY, Constant.MINRD)
+    # treedrawer.drawABtestTree(cltree.root)
+    # raw_input("after prune")
     clusters = cltree.getClustersList(min_nr_instances=Constant.MIN_NR_INSTANCES)
+    # treedrawer.drawABtestTree(cltree.root)
+    # raw_input("after get clusterlist")
     
     c = 0
     for i, node in enumerate(clusters):
@@ -126,6 +133,8 @@ def clmain():
             print node
         except:
             print node.__str__().encode("utf-8")
+        # raw_input("why here"+str(i))
+        # treedrawer.drawABtestTree(cltree.root)
     print "Total instances clustered: ", c
     #clusterplt.draw()
     #myplt.draw()
@@ -136,6 +145,8 @@ def clmain():
     # abtester = ABTest.ABTest(cltree.root)
     # abtester.dotest()
     # abtester.dobilabeltest()
+    end = time.time()
+    print "elapsed:",end - start
 
 if __name__ == '__main__':
     # for min_y in xrange(11):

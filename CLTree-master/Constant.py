@@ -1,6 +1,7 @@
 
 # ========== please change these parameters according to your own environment and data=======
-CACHEDIR = "cache/"
+PROJECTDIR = "/home/zoul15/cltree/CLTree/"
+CACHEDIR = PROJECTDIR + "cache/"
 OUTPUTPNG = CACHEDIR + "/cltree.png"
 OUTPUTTXT = CACHEDIR + "/cltree.txt"
 # SCHEMAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/schema.csv"
@@ -9,8 +10,8 @@ OUTPUTTXT = CACHEDIR + "/cltree.txt"
 # DATAFNAME = "/mnt/mfs/users/zoul15/didierrordata/focusdata/samplednotagdata.log"
 # SCHEMAFNAME = "/mnt/mfs/users/zoul15/airdata/schema.csv"
 # DATAFNAME = "/mnt/mfs/users/zoul15/airdata/airline.csv.tab"
-SCHEMAFNAME = "/mnt/mfs/users/zoul15/didiorder/focusdata/schema.csv"
-DATAFNAME = "/mnt/mfs/users/zoul15/didiorder/focusdata/didisample.csv"
+SCHEMAFNAME = "/mnt/mfs/users/zoul15/didiorder/focusdata/newschema.csv"
+DATAFNAME = "/mnt/mfs/users/zoul15/didiorder/focusdata/newdidisample.csv"
 # SCHEMAFNAME = "example data/schema.csv"
 # DATAFNAME = "example data/example.csv.tab"
 DRAWIMAGE = True
