@@ -17,7 +17,7 @@ DATAFNAME = "/mnt/mfs/users/zoul15/didiorder/focusdata/newdidisample.csv"
 DRAWIMAGE = True
 
 # ========== cltree parameters ======================
-NODERATIOTHRE = 0.05
+NODERATIOTHRE = 0.005
 MININFORMATIONGAIN = 0.01
 #RAWDATAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/20140922.csv.tab"
 #RAWDATAFNAME = "/mnt/mfs/users/zoul15/SRTdata/sparknewdata/20140922.csv.tab"
