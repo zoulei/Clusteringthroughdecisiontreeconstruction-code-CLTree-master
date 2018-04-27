@@ -8,6 +8,7 @@ import trandt
 
 import ABTest
 import time
+import gendata
 
 class CLTree:
     def __init__(self, dataset, min_split=1, min_infogain = -100):
@@ -66,8 +67,8 @@ class CLTree:
 
 
     
-def clmain():
-    start = time.time()
+def clmain(size):
+    gendata.gendata(size)
     print "transfer data format"
     trandt.trandata(Constant.SCHEMAFNAME,Constant.DATAFNAME,Constant.DATAFILE,Constant.TRANFILE)
 
@@ -75,6 +76,7 @@ def clmain():
     print '----------------'
     print 'Clustering      '
     print '----------------'
+    start = time.time()
     r = ArffReader()
 
     #data = r.read('test/gen.arff')
@@ -138,18 +140,19 @@ def clmain():
     print "Total instances clustered: ", c
     #clusterplt.draw()
     #myplt.draw()
-
+    end = time.time()
     # treedrawer.drawtest()
     # treedrawer.draw1(cltree.root)
     treedrawer.drawABtestTree(cltree.root)
     # abtester = ABTest.ABTest(cltree.root)
     # abtester.dotest()
     # abtester.dobilabeltest()
-    end = time.time()
+    print "size:",size
     print "elapsed:",end - start
 
 if __name__ == '__main__':
     # for min_y in xrange(11):
     #     print "=="*20
     #     print "min_y: ", min_y* 10
-        clmain()
+    for size in xrange(1,16):
+        clmain(size * 1000)

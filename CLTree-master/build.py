@@ -72,9 +72,9 @@ class BuildTree(object):
             #     raw_input()
             return
         # print "bestCut:",bestCut.attribute,bestCut.value
-        print "enter game:",dataset.m_splitted
+        # print "enter game:",dataset.m_splitted
         lhs_dataset, rhs_dataset = self._splitDatasetUsingBestCut(dataset, bestCut)
-        print "real splitinfo:", lhs_dataset.m_splitted, rhs_dataset.m_splitted
+        # print "real splitinfo:", lhs_dataset.m_splitted, rhs_dataset.m_splitted
 
         # if bestCut.attribute == "hour":
         #     print lhs_dataset.get_max("hour"), lhs_dataset.get_min("hour")
@@ -98,7 +98,7 @@ class BuildTree(object):
         if depth==0 and self.root is None: return True
         
     def _splitDatasetUsingBestCut(self, dataset, bestCut):
-        print "bestCut:",bestCut.attribute, bestCut.value
+        # print "bestCut:",bestCut.attribute, bestCut.value
         attrtype = dataset.attr_types_dict[bestCut.attribute]
         if attrtype == float:
 
@@ -130,32 +130,32 @@ class BuildTree(object):
         else:
             attr = bestCut.attribute
             peri = dataset.getperiod(attr)
-            print "splitinfo:", dataset.m_splitted
+            # print "splitinfo:", dataset.m_splitted
             if not dataset.isattrsplitted(attr):
-                print "not splitted"
+                # print "not splitted"
                 newdataset = self._generatenumericaldataset(dataset, attr, bestCut.m_splitpoint)
             else:
-                print "splitted"
+                # print "splitted"
                 newdataset = self._generatenumericaldataset(dataset, attr)
                     # treat as numerical
             idx = newdataset.getInstanceIndex(bestCut.inst_id)
-            print "newdataset:::::::::::::",newdataset.get_min(attr),newdataset.get_max(attr)
+            # print "newdataset:::::::::::::",newdataset.get_min(attr),newdataset.get_max(attr)
             lhs_set, rhs_set = self.datasetSplitter.split(newdataset, attr, bestCut.value, idx)
-            print "reverse1:", lhs_set.m_reversed
-            print "reverse1::", rhs_set.m_reversed
-            print "real min and max:",lhs_set.get_min(attr),lhs_set.get_max(attr),rhs_set.get_min(attr),rhs_set.get_max(attr),
+            # print "reverse1:", lhs_set.m_reversed
+            # print "reverse1::", rhs_set.m_reversed
+            # print "real min and max:",lhs_set.get_min(attr),lhs_set.get_max(attr),rhs_set.get_min(attr),rhs_set.get_max(attr),
             lhs_set.setperiodicalinfo(dataset)
             rhs_set.setperiodicalinfo(dataset)
-            print "reverse5:", lhs_set.m_reversed
-            print "reverse5::", rhs_set.m_reversed
+            # print "reverse5:", lhs_set.m_reversed
+            # print "reverse5::", rhs_set.m_reversed
             if not dataset.isattrrevrsered(attr) and dataset.isattrsplitted(attr):
                 # numerical
                 # lhs_set.setperiodicalinfo(dataset)
                 # rhs_set.setperiodicalinfo(dataset)
-                print "bobobo"
+                # print "bobobo"
                 pass
             elif dataset.isattrrevrsered(attr) and dataset.isattrsplitted(attr):
-                print "fasfasfas"
+                # print "fasfasfas"
                 # reversed numerical
                 if lhs_set.get_max(attr) <= lhs_set.get_rootmax(attr):
                     lhs_set.m_reversed.remove(attr)
@@ -170,8 +170,8 @@ class BuildTree(object):
             else:
                 lhs_set.m_splitted.add(attr)
                 rhs_set.m_splitted.add(attr)
-                print "reverse3:", lhs_set.m_reversed
-                print "reverse3::", rhs_set.m_reversed
+                # print "reverse3:", lhs_set.m_reversed
+                # print "reverse3::", rhs_set.m_reversed
                 if bestCut.m_splitpoint == dataset.get_max(attr):
                     lhs_set.set_max(attr, lhs_set.get_max(attr) - peri)
                     lhs_set.set_min(attr, lhs_set.get_min(attr) - peri)
@@ -180,17 +180,17 @@ class BuildTree(object):
                     rhs_set.set_min(attr, rhs_set.get_min(attr) - peri)
                     rhs_set.getrealvalue(attr)
                     # pass
-                    print "reverse7:", lhs_set.m_reversed
-                    print "reverse7::", rhs_set.m_reversed
+                    # print "reverse7:", lhs_set.m_reversed
+                    # print "reverse7::", rhs_set.m_reversed
                 else:
                     if lhs_set.get_max(attr) <= lhs_set.get_rootmax(attr):
                         rhs_set.getrealvalue(attr)
                         rhs_set.set_max(attr, rhs_set.get_max(attr) - peri)
-                        print "reverse0:", lhs_set.m_reversed
-                        print "reverse0::", rhs_set.m_reversed
+                        # print "reverse0:", lhs_set.m_reversed
+                        # print "reverse0::", rhs_set.m_reversed
                         rhs_set.m_reversed.add(attr)
-                        print "reverse8:", lhs_set.m_reversed
-                        print "reverse8::", rhs_set.m_reversed
+                        # print "reverse8:", lhs_set.m_reversed
+                        # print "reverse8::", rhs_set.m_reversed
                     else:
                         lhs_set.set_max(attr, lhs_set.get_max(attr) - peri)
                         lhs_set.getrealvalue(attr)
@@ -198,12 +198,12 @@ class BuildTree(object):
                         rhs_set.set_max(attr, rhs_set.get_max(attr) - peri)
                         rhs_set.set_min(attr, rhs_set.get_min(attr) - peri)
                         rhs_set.getrealvalue(attr)
-                        print "reverse9:", lhs_set.m_reversed
-                        print "reverse9::", rhs_set.m_reversed
-                print "splitinfo:", lhs_set.m_splitted
-                print "splitinfo:", rhs_set.m_splitted
-                print "reverse2:", lhs_set.m_reversed
-                print "reverse2::", rhs_set.m_reversed
+                        # print "reverse9:", lhs_set.m_reversed
+                        # print "reverse9::", rhs_set.m_reversed
+                # print "splitinfo:", lhs_set.m_splitted
+                # print "splitinfo:", rhs_set.m_splitted
+                # print "reverse2:", lhs_set.m_reversed
+                # print "reverse2::", rhs_set.m_reversed
 
         for attribute in dataset.attr_names:
             if attribute == bestCut.attribute:
@@ -221,11 +221,11 @@ class BuildTree(object):
                 lhs_set.set_range(attribute,attrrange)
                 rhs_set.set_range(attribute,attrrange)
 
-        print "splitinfo:", lhs_set.m_splitted
-        print "splitinfo:", rhs_set.m_splitted
-        print "--===---==-=-=-=-=-=-=-"
-        print "reverse:", lhs_set.m_reversed
-        print "reverse::", rhs_set.m_reversed
+        # print "splitinfo:", lhs_set.m_splitted
+        # print "splitinfo:", rhs_set.m_splitted
+        # print "--===---==-=-=-=-=-=-=-"
+        # print "reverse:", lhs_set.m_reversed
+        # print "reverse::", rhs_set.m_reversed
         return lhs_set, rhs_set
             
     def _findBestCut(self, dataset):               
@@ -272,7 +272,7 @@ class BuildTree(object):
                 # periodical
                 pass
                 # print "per"
-                print "whywhy(((((((((((((((((((((:",dataset.m_reversed
+                # print "whywhy(((((((((((((((((((((:",dataset.m_reversed
                 curbestcut = self._findperiodicalbestcut(dataset, attribute)
                 # bestCut = self._selectLowerDensityCut(curbestcut,bestCut)
                 bestCut = self._selectHigherInfoCut(curbestcut, bestCut)
@@ -304,7 +304,7 @@ class BuildTree(object):
     def _findperiodicalbestcut(self, dataset, attribute):
         if not dataset.isattrrevrsered(attribute) and dataset.isattrsplitted(attribute):
             # treat as numerical feature
-            print "findbestcut:",dataset.m_splitted
+            # print "findbestcut:",dataset.m_splitted
             return self._findperiodicalbestcutsimplecase(dataset, attribute)
                 # bestCut = self._selectLowerDensityCut(di_cut3, bestCut)
         elif dataset.isattrrevrsered(attribute):
