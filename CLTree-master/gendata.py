@@ -1,5 +1,6 @@
-import Constant
+# import Constant
 import random
+import sys
 
 def gendata(size):
     ifile = open(Constant.SEEDFNAME)
@@ -36,8 +37,20 @@ def gendataforrawcltree(size):
             newdata.append(str(float(value) + random.uniform(-4,4)))
         newdata.append(seed[-1])
         # print newdata
-        ofile.write("\t".join(newdata)+"\n")
+        ofile.write(",".join(newdata)+"\n")
+    ofile.close()
+
+def genperiodicaldata(size):
+    ofile = open("rawtest/newD05.csv","w")
+    for _ in xrange(size / 2):
+        x = random.uniform(0,3)
+        y = random.uniform(0,10)
+        ofile.write("\t".join([str(x),str(y)])+"\n")
+    for _ in xrange(size / 2):
+        x = random.uniform(7,10)
+        y = random.uniform(0,10)
+        ofile.write("\t".join([str(x),str(y)])+"\n")
     ofile.close()
 
 if __name__ == "__main__":
-    gendata(98)
+    genperiodicaldata(int(sys.argv[1]))
