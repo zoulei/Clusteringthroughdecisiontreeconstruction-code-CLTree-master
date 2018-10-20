@@ -219,4 +219,4 @@ def trancreditclient():
 if __name__ == "__main__":
     # trancreditclient()
     # tranwebbrowsing()
-    tranSRT()
+    trandata(Constant.SCHEMAFNAME,Constant.DATAFNAME,Constant.DATAFILE,Constant.TRANFILE)

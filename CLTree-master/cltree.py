@@ -68,7 +68,7 @@ class CLTree:
 
     
 def clmain(size):
-    gendata.gendata(size)
+    # gendata.gendata(size)
     print "transfer data format"
     trandt.trandata(Constant.SCHEMAFNAME,Constant.DATAFNAME,Constant.DATAFILE,Constant.TRANFILE)
 
